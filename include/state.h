@@ -7,14 +7,24 @@
 
 #include <cstdint>
 
+using Reg = uint8_t;
+using Byte = uint8_t;
+using DReg = uint16_t;
+
+#define MEM_SIZE 0x10000
+
+// FLEG setting utils
 #define SET_ZERO_FLAG(state, value) state.FLEG |= 0x80*(value == 0)
 #define SET_SUBSTRACT_FLAG(state) state.FLEG |= 0x40
 #define SET_HALF_CARRY_FLAG(state, condition) state.FLEG |= 0x20*condition
 #define SET_CARRY_FLAG(state, condition) state.FLEG |= 0x10*condition
 
-using Reg = uint8_t;
-using Byte = uint8_t;
-using DReg = uint16_t;
+// Double register utils
+#define JOIN_REGS(r1, r2) (DReg(r1) << 8) | DReg(r2)
+#define REG_AF(state) JOIN_REGS(state.A, state.F)
+#define REG_BC(state) JOIN_REGS(state.B, state.C)
+#define REG_DE(state) JOIN_REGS(state.D, state.E)
+#define REG_HL(state) JOIN_REGS(state.H, state.L)
 
 
 typedef struct {
@@ -29,4 +39,5 @@ typedef struct {
   Reg L = 0;
   DReg SP = 0xFFFE;
   DReg PC = 0x0100;
+  Byte memory[MEM_SIZE] = {0};
 } State;
