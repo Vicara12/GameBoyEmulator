@@ -1,37 +1,18 @@
 #include <Arduino.h>
-#include <random>
+#include "instructions/instruction.h"
 
 void setup() {
   Serial.begin(9600);
 }
 
-int adder (int a, int b)
-{
-  return a+b;
-}
-
-int sub (int a, int b)
-{
-  return a-b;
-}
-
-int dothing ()
-{
-  auto a = random();
-  auto b = random();
-  if (a > b) {
-    return adder(a,b);
-  } else {
-    return sub(a,b);
-  }
-}
-
 void loop() {
+  State state;
+  int total = 0;
   auto t_ini = micros();
   for (int i = 0; i < int(1e6); i++) {
-    int res = dothing();
+    total += executeInstruction(0x06, 0x01, state);
   }
   auto t_fi = micros();
-  Serial.println("Took " +  String((t_fi-t_ini)/1e6) + " secs.");
+  Serial.println("Took " +  String((t_fi-t_ini)/1e6) + " secs " + String(total) + ".");
   delay(1);
 }
