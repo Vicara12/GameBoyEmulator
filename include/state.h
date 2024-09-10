@@ -9,15 +9,27 @@
 
 using Reg = uint8_t;
 using Byte = uint8_t;
+using SByte = int8_t;
 using DReg = uint16_t;
+using Short = uint16_t;
 
 #define MEM_SIZE 0x10000
 
-// FLEG setting utils
-#define SET_ZERO_FLAG(state, value) state.FLEG |= 0x80*(value == 0)
-#define SET_SUBSTRACT_FLAG(state) state.FLEG |= 0x40
-#define SET_HALF_CARRY_FLAG(state, condition) state.FLEG |= 0x20*condition
-#define SET_CARRY_FLAG(state, condition) state.FLEG |= 0x10*condition
+// Flag setting utils
+#define SET_ZERO_FLAG(state) state.F |= 0x80
+#define COND_SET_ZERO_FLAG(state, value) state.F |= 0x80*(value == 0)
+#define RESET_ZERO_FLAG(state) state.F &= 0x7F
+
+#define SET_SUBTRACT_FLAG(state) state.F |= 0x40
+#define RESET_SUBTRACT_FLAG(state) state.F &= 0xBF
+
+#define SET_HALF_CARRY_FLAG(state) state.F |= 0x20
+#define COND_SET_HALF_CARRY_FLAG(state, condition) state.F |= 0x20*condition
+#define RESET_HALF_CARRY_FLAG(state) state.F &= 0xDF
+
+#define SET_CARRY_FLAG(state) state.F |= 0x10
+#define COND_SET_CARRY_FLAG(state, condition) state.F |= 0x10*condition
+#define RESET_CARRY_FLAG(state) state.F |= 0xEF
 
 // Double register utils
 #define JOIN_REGS(r1, r2) (DReg(r1) << 8) | DReg(r2)
@@ -26,9 +38,14 @@ using DReg = uint16_t;
 #define REG_DE(state) JOIN_REGS(state.D, state.E)
 #define REG_HL(state) JOIN_REGS(state.H, state.L)
 
+#define STORE_SHORT(value, dst_high, dst_low) dst_high = Byte(value >> 8); dst_low = Byte(value & 0xFF)
+#define SET_REG_AF(value, state) STORE_SHORT(value, state.A, state.F)
+#define SET_REG_BC(value, state) STORE_SHORT(value, state.B, state.C)
+#define SET_REG_DE(value, state) STORE_SHORT(value, state.D, state.E)
+#define SET_REG_HL(value, state) STORE_SHORT(value, state.H, state.L)
+
 
 typedef struct {
-  Reg FLEG = 0;
   Reg A = 0;
   Reg B = 0;
   Reg C = 0;
