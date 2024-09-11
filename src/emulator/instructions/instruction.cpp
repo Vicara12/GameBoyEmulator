@@ -1,5 +1,6 @@
 #include "emulator/instructions/instruction.h"
 #include "emulator/instructions/loadinstr.h"
+#include "emulator/instructions/artihmeticinstr.h"
 
 
 int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
@@ -263,21 +264,21 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0x7F:
     return instr_LD_r1_r2(state->A, state->A);
   case 0x80:
-    return -1;
+    return instr_ADD_A_r(state->B, state, false);
   case 0x81:
-    return -1;
+    return instr_ADD_A_r(state->C, state, false);
   case 0x82:
-    return -1;
+    return instr_ADD_A_r(state->D, state, false);
   case 0x83:
-    return -1;
+    return instr_ADD_A_r(state->E, state, false);
   case 0x84:
-    return -1;
+    return instr_ADD_A_r(state->H, state, false);
   case 0x85:
-    return -1;
+    return instr_ADD_A_r(state->L, state, false);
   case 0x86:
-    return -1;
+    return instr_ADD_A_mem_HL(state);
   case 0x87:
-    return -1;
+    return instr_ADD_A_r(state->A, state, false);
   case 0x88:
     return -1;
   case 0x89:
@@ -403,7 +404,7 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0xC5:
     return instr_PUSH_nn(state->B, state->C, state);
   case 0xC6:
-    return -1;
+    return instr_ADD_A_r(data0, state, true);
   case 0xC7:
     return -1;
   case 0xC8:

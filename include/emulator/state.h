@@ -36,7 +36,7 @@ using Short = uint16_t;
 
 #define SET_CARRY_FLAG(state) state->F |= CARRY_FLAG
 #define COND_SET_CARRY_FLAG(state, condition) state->F |= CARRY_FLAG*(condition)
-#define RESET_CARRY_FLAG(state) state->F |= ~CARRY_FLAG
+#define RESET_CARRY_FLAG(state) state->F &= ~CARRY_FLAG
 
 // Double register utils
 #define JOIN_REGS(r1, r2) (DReg(r1) << 8) | DReg(r2)
