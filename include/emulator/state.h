@@ -1,6 +1,6 @@
 
 /*
-* This file handles everything related to memory and registers
+* Code for everything related to memory and registers
 */
 
 #pragma once

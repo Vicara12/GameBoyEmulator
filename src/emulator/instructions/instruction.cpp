@@ -1,7 +1,6 @@
 #include "emulator/instructions/instruction.h"
 #include "emulator/instructions/loadinstr.h"
 
-int foo () {return 0;}
 
 int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
 {

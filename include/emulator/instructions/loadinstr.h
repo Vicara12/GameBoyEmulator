@@ -1,5 +1,9 @@
 #pragma once
 
+/*
+* Code for all the memory instructions (LD, PUSH, POP)
+*/
+
 #include "emulator/state.h"
 
 // LD nn,n: put 8 bit immediate value n into register nn
