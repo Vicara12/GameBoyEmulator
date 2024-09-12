@@ -24,6 +24,26 @@ void benchmark (Byte opcode, Byte data0, Byte data1, State *state)
   Serial.println("Took " +  String((t_fi-t_ini)/1e6) + " secs " + String(total) + ".");
 }
 
+void benchmarkAll (State *state)
+{
+  Serial.println("\nBegan testing!");
+  for (int opcode = 0; opcode <= 0xFF; opcode++) {
+    auto t_ini = micros();
+    for (int i = 0; i < int(1e4); i++) {
+      executeInstruction(opcode, 0x00, 0x00, state);
+    }
+    auto t_fi = micros();
+    float ratio = (t_fi-t_ini)/1e4;
+    String base_msg = " * " + String(opcode) + ": " +  String(ratio) + " s";
+    if (ratio > 0.7) {
+      Serial.println("WARNING: " + base_msg);
+    } else {
+      Serial.println(base_msg);
+    }
+    
+  }
+}
+
 void execute (State *state)
 {
   state->A = 0x12;
@@ -35,7 +55,8 @@ void loop() {
   Serial.println("\nBegan testing!");
   State *state = new State;
   // benchmark(0xF8, 0x01, 0x00, state);
-  execute(state);
+  // execute(state);
+  benchmarkAll(state);
   delete state;
   delay(1e4);
 }

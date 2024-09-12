@@ -264,117 +264,117 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0x7F:
     return instr_LD_r1_r2(state->A, state->A);
   case 0x80:
-    return instr_ADD_A_r(state->B, state, false);
+    return instr_ADX_A_r(state->B, state, false, false);
   case 0x81:
-    return instr_ADD_A_r(state->C, state, false);
+    return instr_ADX_A_r(state->C, state, false, false);
   case 0x82:
-    return instr_ADD_A_r(state->D, state, false);
+    return instr_ADX_A_r(state->D, state, false, false);
   case 0x83:
-    return instr_ADD_A_r(state->E, state, false);
+    return instr_ADX_A_r(state->E, state, false, false);
   case 0x84:
-    return instr_ADD_A_r(state->H, state, false);
+    return instr_ADX_A_r(state->H, state, false, false);
   case 0x85:
-    return instr_ADD_A_r(state->L, state, false);
+    return instr_ADX_A_r(state->L, state, false, false);
   case 0x86:
-    return instr_ADD_A_mem_HL(state);
+    return instr_ADX_A_mem_HL(state, false);
   case 0x87:
-    return instr_ADD_A_r(state->A, state, false);
+    return instr_ADX_A_r(state->A, state, false, false);
   case 0x88:
-    return -1;
+    return instr_ADX_A_r(state->B, state, false, true);
   case 0x89:
-    return -1;
+    return instr_ADX_A_r(state->C, state, false, true);
   case 0x8A:
-    return -1;
+    return instr_ADX_A_r(state->D, state, false, true);
   case 0x8B:
-    return -1;
+    return instr_ADX_A_r(state->E, state, false, true);
   case 0x8C:
-    return -1;
+    return instr_ADX_A_r(state->H, state, false, true);
   case 0x8D:
-    return -1;
+    return instr_ADX_A_r(state->L, state, false, true);
   case 0x8E:
-    return -1;
+    return instr_ADX_A_mem_HL(state, true);
   case 0x8F:
-    return -1;
+    return instr_ADX_A_r(state->A, state, false, true);
   case 0x90:
-    return -1;
+    return instr_SBX_A_r(state->B, state, false, false);
   case 0x91:
-    return -1;
+    return instr_SBX_A_r(state->C, state, false, false);
   case 0x92:
-    return -1;
+    return instr_SBX_A_r(state->D, state, false, false);
   case 0x93:
-    return -1;
+    return instr_SBX_A_r(state->E, state, false, false);
   case 0x94:
-    return -1;
+    return instr_SBX_A_r(state->H, state, false, false);
   case 0x95:
-    return -1;
+    return instr_SBX_A_r(state->L, state, false, false);
   case 0x96:
-    return -1;
+    return instr_SBX_A_mem_HL(state, false);
   case 0x97:
-    return -1;
+    return instr_SBX_A_r(state->A, state, false, false);
   case 0x98:
-    return -1;
+    return instr_SBX_A_r(state->B, state, false, true);
   case 0x99:
-    return -1;
+    return instr_SBX_A_r(state->C, state, false, true);
   case 0x9A:
-    return -1;
+    return instr_SBX_A_r(state->D, state, false, true);
   case 0x9B:
-    return -1;
+    return instr_SBX_A_r(state->E, state, false, true);
   case 0x9C:
-    return -1;
+    return instr_SBX_A_r(state->H, state, false, true);
   case 0x9D:
-    return -1;
+    return instr_SBX_A_r(state->L, state, false, true);
   case 0x9E:
-    return -1;
+    return instr_SBX_A_mem_HL(state, true);
   case 0x9F:
-    return -1;
+    return instr_SBX_A_r(state->A, state, false, true);
   case 0xA0:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->B, state, false, false, 0);
   case 0xA1:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->C, state, false, false, 0);
   case 0xA2:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->D, state, false, false, 0);
   case 0xA3:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->E, state, false, false, 0);
   case 0xA4:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->H, state, false, false, 0);
   case 0xA5:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->L, state, false, false, 0);
   case 0xA6:
-    return -1;
+    return instr_AND_OR_XOR_A_r(       0, state, false, true, 0);
   case 0xA7:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->A, state, false, false, 0);
   case 0xA8:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->B, state, false, false, 2);
   case 0xA9:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->C, state, false, false, 2);
   case 0xAA:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->D, state, false, false, 2);
   case 0xAB:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->E, state, false, false, 2);
   case 0xAC:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->H, state, false, false, 2);
   case 0xAD:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->L, state, false, false, 2);
   case 0xAE:
-    return -1;
+    return instr_AND_OR_XOR_A_r(       0, state, false, true, 2);
   case 0xAF:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->A, state, false, false, 2);
   case 0xB0:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->B, state, false, false, 1);
   case 0xB1:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->C, state, false, false, 1);
   case 0xB2:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->D, state, false, false, 1);
   case 0xB3:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->E, state, false, false, 1);
   case 0xB4:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->H, state, false, false, 1);
   case 0xB5:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->L, state, false, false, 1);
   case 0xB6:
-    return -1;
+    return instr_AND_OR_XOR_A_r(       0, state, false, true, 1);
   case 0xB7:
-    return -1;
+    return instr_AND_OR_XOR_A_r(state->A, state, false, false, 1);
   case 0xB8:
     return -1;
   case 0xB9:
@@ -404,7 +404,7 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0xC5:
     return instr_PUSH_nn(state->B, state->C, state);
   case 0xC6:
-    return instr_ADD_A_r(data0, state, true);
+    return instr_ADX_A_r(data0, state, true, false);
   case 0xC7:
     return -1;
   case 0xC8:
@@ -420,7 +420,7 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0xCD:
     return -1;
   case 0xCE:
-    return -1;
+    return instr_ADX_A_r(data0, state, true, true);
   case 0xCF:
     return -1;
   case 0xD0:
@@ -436,7 +436,7 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0xD5:
     return instr_PUSH_nn(state->D, state->E, state);
   case 0xD6:
-    return -1;
+    return instr_SBX_A_r(data0, state, true, false);
   case 0xD7:
     return -1;
   case 0xD8:
@@ -468,7 +468,7 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0xE5:
     return instr_PUSH_nn(state->H, state->L, state);
   case 0xE6:
-    return -1;
+    return instr_AND_OR_XOR_A_r(data0, state, true, false, 0);
   case 0xE7:
     return -1;
   case 0xE8:
@@ -484,7 +484,7 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0xED:
     return -1;
   case 0xEE:
-    return -1;
+    return instr_AND_OR_XOR_A_r(data0, state, true, false, 2);
   case 0xEF:
     return -1;
   case 0xF0:
@@ -500,7 +500,7 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0xF5:
     return instr_PUSH_nn(state->A, state->F, state);
   case 0xF6:
-    return -1;
+    return instr_AND_OR_XOR_A_r(data0, state, true, false, 1);
   case 0xF7:
     return -1;
   case 0xF8:
