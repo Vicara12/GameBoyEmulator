@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-* Code for all the arithmetic instructions (ADD)
+* Code for all the arithmetic instructions
 */
 
 #include "emulator/state.h"

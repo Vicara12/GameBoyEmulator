@@ -21,7 +21,12 @@ using Short = uint16_t;
 #define HALF_CARRY_FLAG 0x20
 #define CARRY_FLAG      0x10
 
-#define CLEAR_ALL_FLAGS(state) state->F = 0x00;
+#define GET_ZERO_FLAG(state)       ((state->F & ZERO_FLAG) != 0)
+#define GET_SUBTRACT_FLAG(state)   ((state->F & SUBTRACT_FLAG) != 0)
+#define GET_HALF_CARRY_FLAG(state) ((state->F & HALF_CARRY_FLAG) != 0)
+#define GET_CARRY_FLAG(state)      ((state->F & CARRY_FLAG) != 0)
+
+#define CLEAR_ALL_FLAGS(state) state->F = 0x00
 
 #define SET_ZERO_FLAG(state) state->F |= ZERO_FLAG
 #define COND_SET_ZERO_FLAG(state, condition) state->F |= ZERO_FLAG*(condition)
