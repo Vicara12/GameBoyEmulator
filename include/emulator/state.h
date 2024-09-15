@@ -70,4 +70,7 @@ typedef struct {
   DReg SP = 0xFFFE;
   DReg PC = 0x0100;
   Byte memory[MEM_SIZE] = {0};
+  bool halted = false;
+  bool stopped = false;
+  bool interrupt_enabled = true;
 } State;

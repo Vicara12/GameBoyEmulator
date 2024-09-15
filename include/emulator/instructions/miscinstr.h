@@ -27,3 +27,31 @@ inline int instr_DAA (State *state)
   COND_SET_CARRY_FLAG(state, state->A == 0);
   return 4;
 }
+
+// NOP: no operation
+inline int instr_NOP ()
+{
+  return 4;
+}
+
+// HALT: power down CPU until an interrupt occurs
+inline int instr_HALT (State *state)
+{
+  state->halted = true;
+  return 4;
+}
+
+// STOP: halt CPU and LCD display until button pressed
+inline int instr_STOP (State *state)
+{
+  state->halted = true;
+  return 4;
+}
+
+// enable = false: DI: disable interrupts after instruction execution
+// enable = true:  EI: enable interrupts after instruction execution
+inline int instr_DI_EI (State *state, bool enable)
+{
+  state->interrupt_enabled = enable;
+  return 4;
+}
