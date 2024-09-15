@@ -1,7 +1,24 @@
 #include <unity.h>
-#include <Arduino.h>
+#include "loadinstr.h"
 #include "emulator/state.h"
 #include "emulator/instructions/instruction.h"
+
+void runAllLoadInstrTests ()
+{
+  RUN_TEST(test_instr_LD_nn_n);
+  RUN_TEST(test_instr_LD_r1_r2);
+  RUN_TEST(test_instr_LD_r1_mem_nn);
+  RUN_TEST(test_instr_LD_mem_r1_nn);
+  RUN_TEST(test_instr_LD_A_FF00_n);
+  RUN_TEST(test_instr_LD_FF00_n_A);
+  RUN_TEST(test_instr_LDX_A_mem_HL);
+  RUN_TEST(test_instr_LD_dReg_nn_instr_LD_SP_nn);
+  RUN_TEST(test_instr_LDHL_SP_n);
+  RUN_TEST(test_instr_LD_mem_nn_SP);
+  RUN_TEST(test_instr_PUSH_nn);
+  RUN_TEST(test_instr_POP_nn);
+
+}
 
 void test_instr_LD_nn_n ()
 {
@@ -305,27 +322,4 @@ void test_instr_POP_nn ()
   TEST_ASSERT_EQUAL(cycles, 12);
 
   delete state;
-}
-
-void setup ()
-{
-  UNITY_BEGIN();
-  RUN_TEST(test_instr_LD_nn_n);
-  RUN_TEST(test_instr_LD_r1_r2);
-  RUN_TEST(test_instr_LD_r1_mem_nn);
-  RUN_TEST(test_instr_LD_mem_r1_nn);
-  RUN_TEST(test_instr_LD_A_FF00_n);
-  RUN_TEST(test_instr_LD_FF00_n_A);
-  RUN_TEST(test_instr_LDX_A_mem_HL);
-  RUN_TEST(test_instr_LD_dReg_nn_instr_LD_SP_nn);
-  RUN_TEST(test_instr_LDHL_SP_n);
-  RUN_TEST(test_instr_LD_mem_nn_SP);
-  RUN_TEST(test_instr_PUSH_nn);
-  RUN_TEST(test_instr_POP_nn);
-  UNITY_END();
-}
-
-void loop ()
-{
-  delay(100);
 }

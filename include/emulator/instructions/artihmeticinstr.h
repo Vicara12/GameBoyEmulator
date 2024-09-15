@@ -99,3 +99,92 @@ inline int instr_AND_OR_XOR_A_r (Reg r, State *state, bool immediate, bool use_h
   COND_SET_ZERO_FLAG(state, state->A == 0);
   return 4 + 4*(immediate or use_hl);
 }
+
+// CP r: compare A with register, 8 bit value or (HL)
+inline int instr_CP_r (Reg r, State *state, bool immediate, bool use_hl)
+{
+  if (use_hl) {
+    r = state->memory[REG_HL(state)];
+  }
+  CLEAR_ALL_FLAGS(state);
+  SET_SUBTRACT_FLAG(state);
+  handleFlags(state->A, r, state, [](Short a, Short b)->Short {return a-b;});
+  return 4 + 4*(immediate or use_hl);
+}
+
+// dec = false: INC r: increment register
+// dec = true:  DEC r: decrement register
+inline int instr_INC_DEC_r (Reg &r, State *state, bool dec)
+{
+  // can't do clear all as caryy flag can't be affected
+  RESET_HALF_CARRY_FLAG(state);
+  if (dec) {
+    r--;
+    SET_SUBTRACT_FLAG(state);
+    COND_SET_HALF_CARRY_FLAG(state, (r & 0x0F) == 0xF);
+  } else {
+    r++;
+    RESET_SUBTRACT_FLAG(state);
+    COND_SET_HALF_CARRY_FLAG(state, (r & 0x0F) == 0x0);
+  }
+  RESET_ZERO_FLAG(state);
+  COND_SET_ZERO_FLAG(state, r == 0);
+  return 4;
+}
+
+// dec = false: INC (HL): increment (HL)
+// dec = true:  DEC (HL): decrement (HL)
+inline int instr_INC_DEC_mem_HL (State *state, bool dec)
+{
+  instr_INC_DEC_r(state->memory[REG_HL(state)], state, dec);
+  return 12;
+}
+
+// ADD HL, n: add two byte register n to HL
+inline int instr_ADD_HL_n (DReg reg, State *state)
+{
+  RESET_SUBTRACT_FLAG(state);
+  RESET_HALF_CARRY_FLAG(state);
+  RESET_CARRY_FLAG(state);
+  DReg HL = REG_HL(state);
+  COND_SET_HALF_CARRY_FLAG(state, ((HL & 0x0FFF) + (reg & 0x0FFF)) > 0x0FFF);
+  COND_SET_CARRY_FLAG(state, (uint32_t(reg) + uint32_t(HL)) > 0xFFFF);
+  SET_REG_HL(HL + reg, state);
+  return 8;
+}
+
+// ADD SP, n: add one byte signed immediate to SP
+inline int instr_ADD_SP_n (SByte n, State *state)
+{
+  CLEAR_ALL_FLAGS(state);
+  COND_SET_HALF_CARRY_FLAG(state, (((state->SP & 0x0FFF) + n) & 0xF000) != 0);
+  COND_SET_CARRY_FLAG(state, ((uint32_t(state->SP) + n) & 0xFFFF0000) != 0);
+  state->SP += n;
+  return 16;
+}
+
+// dec = false: INC nn: increment two byte register
+// dec = true:  DEC nn: decrement two byte register
+inline int instr_INC_DEC_nn_16bits (Reg &reg_high, Reg &reg_low, bool dec)
+{
+  DReg nn = JOIN_REGS(reg_high, reg_low);
+  if (dec) {
+    nn--;
+  } else {
+    nn++;
+  }
+  STORE_SHORT(nn, reg_high, reg_low);
+  return 8;
+}
+
+// dec = false: INC SP: increment stack pointer
+// dec = true:  DEC SP: decrement stack pointer
+inline int instr_INC_DEC_SP (State *state, bool dec)
+{
+  if (dec) {
+    state->SP--;
+  } else {
+    state->SP++;
+  }
+  return 8;
+}

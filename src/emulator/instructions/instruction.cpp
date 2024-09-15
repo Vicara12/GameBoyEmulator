@@ -14,11 +14,11 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0x02:
     return instr_LD_mem_r1_nn(REG_BC(state), state->A, state, false, false);
   case 0x03:
-    return -1;
+    return instr_INC_DEC_nn_16bits(state->B, state->C, false);
   case 0x04:
-    return -1;
+    return instr_INC_DEC_r(state->B, state, false);
   case 0x05:
-    return -1;
+    return instr_INC_DEC_r(state->B, state, true);
   case 0x06:
     return instr_LD_nn_n(state->B, data0);
   case 0x07:
@@ -26,15 +26,15 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0x08:
     return instr_LD_mem_nn_SP(JOIN_REGS(data1, data0), state);
   case 0x09:
-    return -1;
+    return instr_ADD_HL_n(REG_BC(state), state);
   case 0x0A:
     return instr_LD_r1_mem_nn(state->A, REG_BC(state), state, false);
   case 0x0B:
-    return -1;
+    return instr_INC_DEC_nn_16bits(state->B, state->C, true);
   case 0x0C:
-    return -1;
+    return instr_INC_DEC_r(state->C, state, false);
   case 0x0D:
-    return -1;
+    return instr_INC_DEC_r(state->C, state, true);
   case 0x0E:
     return instr_LD_nn_n(state->C, data0);
   case 0x0F:
@@ -46,11 +46,11 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0x12:
     return instr_LD_mem_r1_nn(REG_DE(state), state->A, state, false, false);
   case 0x13:
-    return -1;
+    return instr_INC_DEC_nn_16bits(state->D, state->E, false);
   case 0x14:
-    return -1;
+    return instr_INC_DEC_r(state->D, state, false);
   case 0x15:
-    return -1;
+    return instr_INC_DEC_r(state->D, state, true);
   case 0x16:
     return instr_LD_nn_n(state->D, data0);
   case 0x17:
@@ -58,15 +58,15 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0x18:
     return -1;
   case 0x19:
-    return -1;
+    return instr_ADD_HL_n(REG_DE(state), state);
   case 0x1A:
     return instr_LD_r1_mem_nn(state->A, REG_DE(state), state, false);
   case 0x1B:
-    return -1;
+    return instr_INC_DEC_nn_16bits(state->D, state->E, true);
   case 0x1C:
-    return -1;
+    return instr_INC_DEC_r(state->E, state, false);
   case 0x1D:
-    return -1;
+    return instr_INC_DEC_r(state->E, state, true);
   case 0x1E:
     return instr_LD_nn_n(state->E, data0);
   case 0x1F:
@@ -78,11 +78,11 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0x22:
     return instr_LDX_A_mem_HL(state, true, true);
   case 0x23:
-    return -1;
+    return instr_INC_DEC_nn_16bits(state->H, state->L, false);
   case 0x24:
-    return -1;
+    return instr_INC_DEC_r(state->H, state, false);
   case 0x25:
-    return -1;
+    return instr_INC_DEC_r(state->H, state, true);
   case 0x26:
     return instr_LD_nn_n(state->H, data0);
   case 0x27:
@@ -90,15 +90,15 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0x28:
     return -1;
   case 0x29:
-    return -1;
+    return instr_ADD_HL_n(REG_HL(state), state);
   case 0x2A:
     return instr_LDX_A_mem_HL(state, false, true);
   case 0x2B:
-    return -1;
+    return instr_INC_DEC_nn_16bits(state->H, state->L, true);
   case 0x2C:
-    return -1;
+    return instr_INC_DEC_r(state->L, state, false);
   case 0x2D:
-    return -1;
+    return instr_INC_DEC_r(state->L, state, true);
   case 0x2E:
     return instr_LD_nn_n(state->L, data0);
   case 0x2F:
@@ -110,11 +110,11 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0x32:
     return instr_LDX_A_mem_HL(state, true, false);
   case 0x33:
-    return -1;
+    return instr_INC_DEC_SP(state, false);
   case 0x34:
-    return -1;
+    return instr_INC_DEC_mem_HL(state, false);
   case 0x35:
-    return -1;
+    return instr_INC_DEC_mem_HL(state, true);
   case 0x36:
     return instr_LD_mem_r1_nn(REG_HL(state), data0, state, true, false);
   case 0x37:
@@ -122,15 +122,15 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0x38:
     return -1;
   case 0x39:
-    return -1;
+    return instr_ADD_HL_n(state->SP, state);
   case 0x3A:
     return instr_LDX_A_mem_HL(state, false, false);
   case 0x3B:
-    return -1;
+    return instr_INC_DEC_SP(state, true);
   case 0x3C:
-    return -1;
+    return instr_INC_DEC_r(state->A, state, false);
   case 0x3D:
-    return -1;
+    return instr_INC_DEC_r(state->A, state, true);
   case 0x3E:
     return instr_LD_nn_n(state->A, data0);
   case 0x3F:
@@ -376,21 +376,21 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0xB7:
     return instr_AND_OR_XOR_A_r(state->A, state, false, false, 1);
   case 0xB8:
-    return -1;
+    return instr_CP_r(state->B, state, false, false);
   case 0xB9:
-    return -1;
+    return instr_CP_r(state->C, state, false, false);
   case 0xBA:
-    return -1;
+    return instr_CP_r(state->D, state, false, false);
   case 0xBB:
-    return -1;
+    return instr_CP_r(state->E, state, false, false);
   case 0xBC:
-    return -1;
+    return instr_CP_r(state->H, state, false, false);
   case 0xBD:
-    return -1;
+    return instr_CP_r(state->L, state, false, false);
   case 0xBE:
-    return -1;
+    return instr_CP_r(       0, state, false, true);
   case 0xBF:
-    return -1;
+    return instr_CP_r(state->A, state, false, false);
   case 0xC0:
     return -1;
   case 0xC1:
@@ -472,7 +472,7 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0xE7:
     return -1;
   case 0xE8:
-    return -1;
+    return instr_ADD_SP_n(data0, state);
   case 0xE9:
     return -1;
   case 0xEA:
@@ -516,7 +516,7 @@ int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state)
   case 0xFD:
     return -1;
   case 0xFE:
-    return -1;
+    return instr_CP_r(data0, state, true, false);
   case 0xFF:
     return -1;
   default:

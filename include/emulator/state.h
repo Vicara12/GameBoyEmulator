@@ -28,6 +28,7 @@ using Short = uint16_t;
 #define RESET_ZERO_FLAG(state) state->F &= ~ZERO_FLAG
 
 #define SET_SUBTRACT_FLAG(state) state->F |= SUBTRACT_FLAG
+#define COND_SET_SUBTRACT_FLAG(state, condition) state->F |= SUBTRACT_FLAG*(condition)
 #define RESET_SUBTRACT_FLAG(state) state->F &= ~SUBTRACT_FLAG
 
 #define SET_HALF_CARRY_FLAG(state) state->F |= HALF_CARRY_FLAG
