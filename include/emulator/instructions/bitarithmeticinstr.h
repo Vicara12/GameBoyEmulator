@@ -143,3 +143,108 @@ inline int instr_RR_A (State *state)
   instr_RL_n(state->A, state);
   return 4;
 }
+
+// SLA n: shift left arithmetical into carry
+inline int instr_SLA_n (Reg &reg, State *state)
+{
+  CLEAR_ALL_FLAGS(state);
+  COND_SET_CARRY_FLAG(state, (reg & 0x80) != 0);
+  reg = reg << 1;
+  COND_SET_ZERO_FLAG(state, reg == 0);
+  return 8;
+}
+
+// SLA (HL)
+inline int instr_SLA_mem_HL (State *state)
+{
+  instr_SLA_n(state->memory[REG_HL(state)], state);
+  return 16;
+}
+
+// SRA n: shift right into carry
+inline int instr_SRA_n (Reg &reg, State *state)
+{
+  CLEAR_ALL_FLAGS(state);
+  COND_SET_CARRY_FLAG(state, reg & 0x01);
+  reg = Byte(SByte(reg) >> 1);
+  COND_SET_ZERO_FLAG(state, reg == 0);
+  return 8;
+}
+
+// SRA (HL)
+inline int instr_SRA_mem_HL (State *state)
+{
+  instr_SRA_n(state->memory[REG_HL(state)], state);
+  return 16;
+}
+
+// SRL n: logical shift n right into carry
+inline int instr_SRL_n (Reg &reg, State *state)
+{
+  CLEAR_ALL_FLAGS(state);
+  COND_SET_CARRY_FLAG(state, reg & 0x01);
+  reg = reg >> 1;
+  COND_SET_ZERO_FLAG(state, reg == 0);
+  return 8;
+}
+
+// SRL (HL)
+inline int instr_SRL_mem_HL (State *state)
+{
+  instr_SRL_n(state->memory[REG_HL(state)], state);
+  return 16;
+}
+
+// BIT b, r: test bit b in register r
+template <int b>
+inline int instr_BIT_b_r (Reg &reg, State *state)
+{
+  constexpr Byte bit_mask = 1 << b;
+  RESET_SUBTRACT_FLAG(state);
+  SET_HALF_CARRY_FLAG(state);
+  RESET_ZERO_FLAG(state);
+  COND_SET_ZERO_FLAG(state, (reg & bit_mask) != 0);
+  return 8;
+}
+
+// BIT b, (HL)
+template <int b>
+inline int instr_BIT_b_mem_HL (State *state)
+{
+  instr_BIT_b_r<b>(state->memory[REG_HL(state)], state);
+  return 16;
+}
+
+// SET b, r: set bit b in register r
+template<int b>
+inline int instr_SET_b_r (Reg &reg, State *state)
+{
+  constexpr Byte bit_mask = 1 << b;
+  reg |= bit_mask;
+  return 8;
+}
+
+// SET b, (HL)
+template<int b>
+inline int instr_SET_b_mem_HL (State *state)
+{
+  instr_SET_b_r<b>(state->memory[REG_HL(state)], state);
+  return 16;
+}
+
+// RES b, r: reset bit b in register r
+template<int b>
+inline int instr_RES_b_r (Reg &reg, State *state)
+{
+  constexpr Byte bit_mask = Byte(~(1 << b));
+  reg &= bit_mask;
+  return 8;
+}
+
+// RES b, (HL)
+template<int b>
+inline int instr_RES_b_mem_HL (State *state)
+{
+  instr_RES_b_r<b>(state->memory[REG_HL(state)], state);
+  return 16;
+}
