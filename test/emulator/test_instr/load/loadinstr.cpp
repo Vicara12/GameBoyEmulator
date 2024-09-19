@@ -298,8 +298,8 @@ void test_instr_PUSH_nn ()
   state->B = 0x48;
   state->C = 0x26;
   cycles = executeInstruction(0xC5, 0xFF, 0xFF, state);
-  TEST_ASSERT_EQUAL(state->memory[0x5829], 0x48);
-  TEST_ASSERT_EQUAL(state->memory[0x5828], 0x26);
+  TEST_ASSERT_EQUAL(state->memory[0x5828], 0x48);
+  TEST_ASSERT_EQUAL(state->memory[0x5827], 0x26);
   TEST_ASSERT_EQUAL(state->SP, 0x5827);
   TEST_ASSERT_EQUAL(cycles, 16);
 

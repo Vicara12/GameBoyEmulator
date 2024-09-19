@@ -4,6 +4,7 @@
 #include "arithmetic/arithmeticinstr.h"
 #include "bitarithmetic/bitarithmetic.h"
 #include "misc/misc.h"
+#include "flowctrl/flowctrl.h"
 
 
 void setup ()
@@ -13,6 +14,7 @@ void setup ()
   runAllArithmeticInstrTests();
   runAllBitArithmeticInstrTests();
   runAllMiscInstrTests();
+  runAllFlowCtrlInstrTests();
   UNITY_END();
 }
 

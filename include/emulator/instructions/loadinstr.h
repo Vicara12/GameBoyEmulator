@@ -110,8 +110,8 @@ inline int instr_LD_mem_nn_SP (Short nn, State *state)
 // PUSH nn: push register pair nn onto stack and decrement SP twice
 inline int instr_PUSH_nn (Reg upper_reg, Reg lower_reg, State *state)
 {
-  state->memory[state->SP--] = upper_reg;
-  state->memory[state->SP--] = lower_reg;
+  state->memory[--state->SP] = upper_reg;
+  state->memory[--state->SP] = lower_reg;
   return 16;
 }
 

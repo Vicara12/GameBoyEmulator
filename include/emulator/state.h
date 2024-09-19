@@ -45,7 +45,7 @@ using Short = uint16_t;
 #define RESET_CARRY_FLAG(state) state->F &= ~CARRY_FLAG
 
 // Double register utils
-#define JOIN_REGS(r1, r2) (DReg(r1) << 8) | DReg(r2)
+#define JOIN_REGS(r1, r2) ((DReg(r1) << 8) | DReg(r2))
 #define REG_AF(state) JOIN_REGS(state->A, state->F)
 #define REG_BC(state) JOIN_REGS(state->B, state->C)
 #define REG_DE(state) JOIN_REGS(state->D, state->E)
