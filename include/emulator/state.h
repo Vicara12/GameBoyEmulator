@@ -57,6 +57,8 @@ using Short = uint16_t;
 #define SET_REG_DE(value, state) STORE_SHORT(value, state->D, state->E)
 #define SET_REG_HL(value, state) STORE_SHORT(value, state->H, state->L)
 
+// Memory access utils
+#define SET_INTERRUPT_STATUS(value, state) state->memory[0xFFFF] = value;
 
 typedef struct {
   Reg A = 0;
@@ -68,9 +70,20 @@ typedef struct {
   Reg H = 0;
   Reg L = 0;
   DReg SP = 0xFFFE;
-  DReg PC = 0x0100;
+  DReg PC = 0x0000;
   Byte memory[MEM_SIZE] = {0};
   bool halted = false;
   bool stopped = false;
-  bool interrupt_enabled = true;
 } State;
+
+inline void writeMem (Short addr, Byte data, State* state)
+{
+  state->memory[addr] = data;
+  // Check write on RAM, if so write both on orig and mirror
+  if (addr >= 0xC000 and addr < 0xDE00) {
+    state->memory[addr-0xC000+0xE000] = data;
+  }
+  else if (addr >= 0xE000 and addr < 0xFE00) {
+    state->memory[addr-0xE000+0xC000] = data;
+  }
+}

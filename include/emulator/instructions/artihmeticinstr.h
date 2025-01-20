@@ -136,7 +136,9 @@ inline int instr_INC_DEC_r (Reg &r, State *state, bool dec)
 // dec = true:  DEC (HL): decrement (HL)
 inline int instr_INC_DEC_mem_HL (State *state, bool dec)
 {
-  instr_INC_DEC_r(state->memory[REG_HL(state)], state, dec);
+  DReg HL = REG_HL(state);
+  instr_INC_DEC_r(state->memory[HL], state, dec);
+  writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 12;
 }
 

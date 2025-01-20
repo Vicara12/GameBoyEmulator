@@ -42,6 +42,21 @@ void benchmarkAll (State *state)
     }
     
   }
+    for (int opcode = 0; opcode <= 0xFF; opcode++) {
+    auto t_ini = micros();
+    for (int i = 0; i < int(1e4); i++) {
+      executeInstruction(0xCB, opcode, 0x00, state);
+    }
+    auto t_fi = micros();
+    float ratio = (t_fi-t_ini)/1e4;
+    String base_msg = " * (CB) " + String(opcode) + ": " +  String(ratio) + " s";
+    if (ratio > 0.7) {
+      Serial.println("WARNING: " + base_msg);
+    } else {
+      Serial.println(base_msg);
+    }
+    
+  }
 }
 
 void execute (State *state)

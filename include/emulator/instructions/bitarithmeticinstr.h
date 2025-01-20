@@ -19,7 +19,9 @@ inline int instr_SWAP_n (Reg &n, State *state)
 // SWAP (HL): swap upper and lower nibbles of data stored at (HL)
 inline int instr_SWAP_mem_HL (State *state)
 {
-  instr_SWAP_n(state->memory[REG_HL(state)], state);
+  DReg HL = REG_HL(state);
+  instr_SWAP_n(state->memory[HL], state);
+  writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
 }
 
@@ -59,7 +61,9 @@ inline int instr_RLC_n (Reg &n, State *state)
 // RLC (HL)
 inline int instr_RLC_mem_HL (State *state)
 {
-  instr_RLC_n(state->memory[REG_HL(state)], state);
+  DReg HL = REG_HL(state);
+  instr_RLC_n(state->memory[HL], state);
+  writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
 }
 
@@ -84,7 +88,9 @@ inline int instr_RL_n (Reg &n, State *state)
 // RL (HL)
 inline int instr_RL_mem_HL (State *state)
 {
-  instr_RL_n(state->memory[REG_HL(state)], state);
+  DReg HL = REG_HL(state);
+  instr_RL_n(state->memory[HL], state);
+  writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
 }
 
@@ -108,7 +114,9 @@ inline int instr_RRC_n (Reg &n, State *state)
 // RRC (HL)
 inline int instr_RRC_mem_HL (State *state)
 {
-  instr_RRC_n(state->memory[REG_HL(state)], state);
+  DReg HL = REG_HL(state);
+  instr_RRC_n(state->memory[HL], state);
+  writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
 }
 
@@ -133,7 +141,9 @@ inline int instr_RR_n (Reg &n, State *state)
 // RR (HL)
 inline int instr_RR_mem_HL (State *state)
 {
-  instr_RR_n(state->memory[REG_HL(state)], state);
+  DReg HL = REG_HL(state);
+  instr_RR_n(state->memory[HL], state);
+  writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
 }
 
@@ -157,7 +167,9 @@ inline int instr_SLA_n (Reg &reg, State *state)
 // SLA (HL)
 inline int instr_SLA_mem_HL (State *state)
 {
-  instr_SLA_n(state->memory[REG_HL(state)], state);
+  DReg HL = REG_HL(state);
+  instr_SLA_n(state->memory[HL], state);
+  writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
 }
 
@@ -174,7 +186,9 @@ inline int instr_SRA_n (Reg &reg, State *state)
 // SRA (HL)
 inline int instr_SRA_mem_HL (State *state)
 {
-  instr_SRA_n(state->memory[REG_HL(state)], state);
+  DReg HL = REG_HL(state);
+  instr_SRA_n(state->memory[HL], state);
+  writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
 }
 
@@ -191,7 +205,9 @@ inline int instr_SRL_n (Reg &reg, State *state)
 // SRL (HL)
 inline int instr_SRL_mem_HL (State *state)
 {
-  instr_SRL_n(state->memory[REG_HL(state)], state);
+  DReg HL = REG_HL(state);
+  instr_SRL_n(state->memory[HL], state);
+  writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
 }
 
@@ -211,7 +227,9 @@ inline int instr_BIT_b_r (Reg &reg, State *state)
 template <int b>
 inline int instr_BIT_b_mem_HL (State *state)
 {
-  instr_BIT_b_r<b>(state->memory[REG_HL(state)], state);
+  DReg HL = REG_HL(state);
+  instr_BIT_b_r<b>(state->memory[HL], state);
+  writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
 }
 
@@ -228,7 +246,9 @@ inline int instr_SET_b_r (Reg &reg, State *state)
 template<int b>
 inline int instr_SET_b_mem_HL (State *state)
 {
-  instr_SET_b_r<b>(state->memory[REG_HL(state)], state);
+  DReg HL = REG_HL(state);
+  instr_SET_b_r<b>(state->memory[HL], state);
+  writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
 }
 
@@ -245,6 +265,8 @@ inline int instr_RES_b_r (Reg &reg, State *state)
 template<int b>
 inline int instr_RES_b_mem_HL (State *state)
 {
-  instr_RES_b_r<b>(state->memory[REG_HL(state)], state);
+  DReg HL = REG_HL(state);
+  instr_RES_b_r<b>(state->memory[HL], state);
+  writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
 }

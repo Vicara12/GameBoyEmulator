@@ -31,7 +31,7 @@ inline int instr_LD_r1_mem_nn (Reg &r1, DReg nn, State *state, bool immediate)
 // LD (r1), r2: put value in nn (either register or 8 bit immediate) into memory location (r1)
 inline int instr_LD_mem_r1_nn (DReg r1, Byte nn, State *state, bool immediate_src, bool immediate_addr)
 {
-  state->memory[r1] = nn;
+  writeMem(r1, nn, state);
   return 8 +  4*immediate_src + 4*immediate_addr;
 }
 
@@ -47,7 +47,7 @@ inline int instr_LD_A_FF00_n (State *state, Byte n, bool immediate)
 // immediate = false: LD (C), A: put value of register A into address 0xFF00 + C
 inline int instr_LD_FF00_n_A (State *state, Byte n, bool immediate)
 {
-  state->memory[0xFF00 + n] = state->A;
+  writeMem(0xFF00+n, state->A, state);
   return 8 + 4*immediate;
 }
 
@@ -59,7 +59,7 @@ inline int instr_LDX_A_mem_HL (State *state, bool A_src, bool inc)
 {
   DReg HL = REG_HL(state);
   if (A_src) {
-    state->memory[HL] = state->A;
+    writeMem(HL, state->A, state);
   } else {
     state->A = state->memory[HL];
   }
@@ -110,8 +110,8 @@ inline int instr_LD_mem_nn_SP (Short nn, State *state)
 // PUSH nn: push register pair nn onto stack and decrement SP twice
 inline int instr_PUSH_nn (Reg upper_reg, Reg lower_reg, State *state)
 {
-  state->memory[--state->SP] = upper_reg;
-  state->memory[--state->SP] = lower_reg;
+  writeMem(--state->SP, upper_reg, state);
+  writeMem(--state->SP, lower_reg, state);
   return 16;
 }
 

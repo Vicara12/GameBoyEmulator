@@ -52,6 +52,6 @@ inline int instr_STOP (State *state)
 // enable = true:  EI: enable interrupts after instruction execution
 inline int instr_DI_EI (State *state, bool enable)
 {
-  state->interrupt_enabled = enable;
+  SET_INTERRUPT_STATUS(enable, state);
   return 4;
 }
