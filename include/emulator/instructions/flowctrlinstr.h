@@ -46,27 +46,27 @@ inline int instr_JR_cc_n (SByte n, Byte flag, bool set, State *state)
 }
 
 // CALL nn: push address of next instruction onto stack and jump to address nn
-inline int instr_CALL_nn (Byte lsb, Byte msb, State *state)
+inline int instr_CALL_nn (Byte lsb, Byte msb, State *state, Interface *interface)
 {
-  writeMem(--state->SP, state->PC >> 8, state);   // push msb of PC
-  writeMem(--state->SP, state->PC & 0xFF, state); // push lsb of PC  
+  writeMem(--state->SP, state->PC >> 8, state, interface);   // push msb of PC
+  writeMem(--state->SP, state->PC & 0xFF, state, interface); // push lsb of PC  
   state->PC = JOIN_REGS(msb, lsb);
   return 12;
 }
 
 // CALL cc, nn: call address nn if the condition cc is true
-inline int instr_CALL_cc_nn (Byte lsb, Byte msb, Byte flag, bool set, State *state)
+inline int instr_CALL_cc_nn (Byte lsb, Byte msb, Byte flag, bool set, State *state, Interface *interface)
 {
   if (set == ((state->F & flag) != 0)) {
-    instr_CALL_nn(lsb, msb, state);
+    instr_CALL_nn(lsb, msb, state, interface);
   }
   return 12;
 }
 
 // RST n: push present address into stack and jump to address 0x0000 + n
-inline int instr_RST_n (Byte addr, State *state)
+inline int instr_RST_n (Byte addr, State *state, Interface *interface)
 {
-  instr_CALL_nn(addr, 0x00, state);
+  instr_CALL_nn(addr, 0x00, state, interface);
   return 32;
 }
 

@@ -5,13 +5,8 @@
 
 #pragma once
 
-#include <cstdint>
-
-using Reg = uint8_t;
-using Byte = uint8_t;
-using SByte = int8_t;
-using DReg = uint16_t;
-using Short = uint16_t;
+#include "emulator/types.h"
+#include "emulator/interface.h"
 
 #define MEM_SIZE 0x10000
 
@@ -76,7 +71,7 @@ typedef struct {
   bool stopped = false;
 } State;
 
-inline void writeMem (Short addr, Byte data, State* state)
+inline void writeMem (Short addr, Byte data, State* state, Interface *interface)
 {
   state->memory[addr] = data;
   // Check write on RAM, if so write both on orig and mirror
@@ -85,5 +80,12 @@ inline void writeMem (Short addr, Byte data, State* state)
   }
   else if (addr >= 0xE000 and addr < 0xFE00) {
     state->memory[addr-0xE000+0xC000] = data;
+  }
+  // Check write to numpad register 0xFF00 and some combination is to be read (bits 4 or 5 to LOW),
+  // if so update contents with numpad input
+  else if (addr == 0xFF00 and (data & 0x30) != 0x30) {
+    bool read_arrows = (data & 0x10 == 0); // low at bit 4 indicates numpad read
+    Byte input = interface->readButtons(read_arrows);
+    state->memory[0xFF00] = 0x30 | (0x0F & input); // update input bits with numpad input
   }
 }

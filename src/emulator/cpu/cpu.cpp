@@ -3,7 +3,7 @@
 #include "emulator/instructions/instruction.h"
 
 
-void initializeState (State *state)
+void initializeState (State *state, Interface *interface)
 {
   state->PC = 0x0000;
   loadBootRoom(state);
@@ -12,7 +12,7 @@ void initializeState (State *state)
 // Execute INSTR_BLOCK_N instructions. If execution flow is interrupted earlier,
 // function returns automatically. Returns number of clock cycles executed and
 // true if it finished the INSTR_BLOCK_N or false if it terminated from other source.
-std::pair<int, bool> executeInstrBlock (State *state)
+std::pair<int, bool> executeInstrBlock (State *state, Interface *interface)
 {
   int n_instrs = 0;
   int total_cycles = 0;
@@ -25,7 +25,7 @@ std::pair<int, bool> executeInstrBlock (State *state)
       break;
     }
     state->PC += instrLen(opcode);
-    total_cycles += executeInstruction(opcode, data0, data1, state);
+    total_cycles += executeInstruction(opcode, data0, data1, state, interface);
     if (state->halted or state->stopped) {
       break;
     }
