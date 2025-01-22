@@ -1,9 +1,11 @@
 #include <Arduino.h>
 #include "emulator/instructions/instruction.h"
 #include "emulator/state.h"
+#include "emulator/cpu/cpu.h"
+#include "emulator/utils/debug.h"
 
 
-#define TESTING
+// #define TESTING
 
 #ifndef TESTING
 
@@ -66,12 +68,36 @@ void execute (State *state)
   executeInstruction(0x80, 0xFF, 0xFF, state);
 }
 
+void testExecBlock (State *state)
+{
+  std::pair<int, bool> exec_result;
+  initializeState(state);
+  Serial.println("Beginning execution...");
+  int total_cycles = 0;
+  auto t_ini = micros();
+  bool keep = true;
+  while (keep) {
+    exec_result = executeInstrBlock(state);
+    total_cycles += exec_result.first;
+    keep = exec_result.second;
+    Serial.println("PC at: " + formatShort(state->PC));
+  }
+  auto t_fi = micros();
+  float cycles = total_cycles;
+  float t_theo = cycles*1e6/CLOCK_FREQ;
+  Serial.println("Finished! Took: " + String(t_fi - t_ini) + " us / " + String(t_theo) + " us.");
+  Serial.println("State:");
+  showRegisters(state);
+  showMemoryRange(state, 0xFF05, 0xFFFF);
+}
+
 void loop() {
   Serial.println("\nBegan testing!");
   State *state = new State;
   // benchmark(0xF8, 0x01, 0x00, state);
   // execute(state);
-  benchmarkAll(state);
+  // benchmarkAll(state);
+  testExecBlock(state);
   delete state;
   delay(1e4);
 }

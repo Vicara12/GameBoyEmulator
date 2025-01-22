@@ -15,6 +15,8 @@ inline int instrLen (Byte opcode)
   {
   // STOP
   case 0x10:
+  // CB prefix
+  case 0xCB:
   // JR cc, r8
   case 0x20:
   case 0x28:
