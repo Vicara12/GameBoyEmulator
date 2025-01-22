@@ -9,7 +9,8 @@
 #include "emulator/interface.h"
 
 #define CLOCK_FREQ 4194304
-#define INSTR_BLOCK_N 10000
+#define INSTR_BLOCK_N 10000 // Instructions are executed in groups of X
+#define INSTRS_PER_BUTTON_UPDATE 64 // Each X instructions the new buttons pressed check is run
 
 
 void initializeState (State *state, Interface *interface);

@@ -29,9 +29,9 @@ inline int instr_LD_r1_mem_nn (Reg &r1, DReg nn, State *state, bool immediate)
 }
 
 // LD (r1), r2: put value in nn (either register or 8 bit immediate) into memory location (r1)
-inline int instr_LD_mem_r1_nn (DReg r1, Byte nn, State *state, bool immediate_src, bool immediate_addr, Interface *interface)
+inline int instr_LD_mem_r1_nn (DReg r1, Byte nn, State *state, bool immediate_src, bool immediate_addr)
 {
-  writeMem(r1, nn, state, interface);
+  writeMem(r1, nn, state);
   return 8 +  4*immediate_src + 4*immediate_addr;
 }
 
@@ -45,9 +45,9 @@ inline int instr_LD_A_FF00_n (State *state, Byte n, bool immediate)
 
 // immediate = true:  LD (n), A: put value of register A into address 0xFF00 + immediate n
 // immediate = false: LD (C), A: put value of register A into address 0xFF00 + C
-inline int instr_LD_FF00_n_A (State *state, Byte n, bool immediate, Interface *interface)
+inline int instr_LD_FF00_n_A (State *state, Byte n, bool immediate)
 {
-  writeMem(0xFF00+n, state->A, state, interface);
+  writeMem(0xFF00+n, state->A, state);
   return 8 + 4*immediate;
 }
 
@@ -55,11 +55,11 @@ inline int instr_LD_FF00_n_A (State *state, Byte n, bool immediate, Interface *i
 // A_src = false and inc = false: LDD (HL), A: put value in A into memory address HL and decrement HL
 // A_src = true  and inc = true:  LDI A, (HL): put value at memory address HL into A and increment HL
 // A_src = false and inc = true:  LDI (HL), A: put value in A into memory address HL and increment HL
-inline int instr_LDX_A_mem_HL (State *state, bool A_src, bool inc, Interface *interface)
+inline int instr_LDX_A_mem_HL (State *state, bool A_src, bool inc)
 {
   DReg HL = REG_HL(state);
   if (A_src) {
-    writeMem(HL, state->A, state, interface);
+    writeMem(HL, state->A, state);
   } else {
     state->A = state->memory[HL];
   }
@@ -108,10 +108,10 @@ inline int instr_LD_mem_nn_SP (Short nn, State *state)
 }
 
 // PUSH nn: push register pair nn onto stack and decrement SP twice
-inline int instr_PUSH_nn (Reg upper_reg, Reg lower_reg, State *state, Interface *interface)
+inline int instr_PUSH_nn (Reg upper_reg, Reg lower_reg, State *state)
 {
-  writeMem(--state->SP, upper_reg, state, interface);
-  writeMem(--state->SP, lower_reg, state, interface);
+  writeMem(--state->SP, upper_reg, state);
+  writeMem(--state->SP, lower_reg, state);
   return 16;
 }
 

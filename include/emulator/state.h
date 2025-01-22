@@ -10,6 +10,18 @@
 
 #define MEM_SIZE 0x10000
 
+
+// Button utils
+#define BUTTON_RIGHT  0x01
+#define BUTTON_LEFT   0x02
+#define BUTTON_UP     0x04
+#define BUTTON_DOWN   0x08
+#define BUTTON_A      0x10
+#define BUTTON_B      0x20
+#define BUTTON_SEL    0x40
+#define BUTTON_START  0x80
+
+
 // Flag setting utils
 #define ZERO_FLAG       0x80
 #define SUBTRACT_FLAG   0x40
@@ -69,9 +81,10 @@ typedef struct {
   Byte memory[MEM_SIZE] = {0};
   bool halted = false;
   bool stopped = false;
+  Byte buttons_pressed = 0; // The emulator should call the function that checks this frequently
 } State;
 
-inline void writeMem (Short addr, Byte data, State* state, Interface *interface)
+inline void writeMem (Short addr, Byte data, State* state)
 {
   state->memory[addr] = data;
   // Check write on RAM, if so write both on orig and mirror
@@ -84,8 +97,11 @@ inline void writeMem (Short addr, Byte data, State* state, Interface *interface)
   // Check write to numpad register 0xFF00 and some combination is to be read (bits 4 or 5 to LOW),
   // if so update contents with numpad input
   else if (addr == 0xFF00 and (data & 0x30) != 0x30) {
-    bool read_arrows = (data & 0x10 == 0); // low at bit 4 indicates numpad read
-    Byte input = interface->readButtons(read_arrows);
-    state->memory[0xFF00] = 0x30 | (0x0F & input); // update input bits with numpad input
+    bool read_letters = (data & 0x20 == 0); // low at bit 5 indicates A/B/Sel/Start read
+    // If we want to read arrows then we keep 4 lower bits, otherwise we want the 4 upper bits of
+    // buttons_pressed as the 4 lower bits of input
+    Byte input = (state->buttons_pressed >> (4*read_letters)) & 0x0F;
+    // Update input bits with numpad input. Recall that button pressed means LOW (0) and vice versa
+    state->memory[0xFF00] = 0x30 | (0x0F & (~input));
   }
 }
