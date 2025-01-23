@@ -1,45 +1,34 @@
 #include "emulator/utils/debug.h"
+#include <string>
+#include <sstream>
+#include <iomanip>
 
-String formatByte (Byte b)
+std::string formatByte (Byte b)
 {
-  if (b == 0) {
-    return "0x00";
-  }
-  else if (b < 0x10) {
-    return "0x0" + String(b,HEX);
-  }
-  return "0x" + String(b, HEX);
+  std::stringstream ss;
+  ss << "0x" << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << b;
+  return ss.str();
 }
 
-String formatShort (Short s)
+std::string formatShort (Short s)
 {
-  if (s == 0) {
-    return "0x0000";
-  }
-  else if (s < 0x10) {
-    return "0x000" + String(s, HEX);
-  }
-  else if (s < 0x100) {
-    return "0x00" + String(s, HEX);
-  }
-  else if (s < 0x1000) {
-    return "0x0" + String(s, HEX);
-  }
-  return "0x" +  String(s, HEX);
+  std::stringstream ss;
+  ss << "0x" << std::setfill('0') << std::setw(4) << std::hex << std::uppercase << s;
+  return ss.str();
 }
 
-void showRegisters (State *state)
+void showRegisters (State *state, Interface *interface)
 {
-  Serial.println("A  = " + formatByte(state->A ) + "    F  = " + formatByte(state->F));
-  Serial.println("B  = " + formatByte(state->B ) + "    C  = " + formatByte(state->C));
-  Serial.println("D  = " + formatByte(state->D ) + "    E  = " + formatByte(state->E));
-  Serial.println("H  = " + formatByte(state->H ) + "    L  = " + formatByte(state->L));
-  Serial.println("SP = " + formatShort(state->SP)  + "  PC = " + formatShort(state->PC));
+  interface->print("A  = " + formatByte(state->A ) + "    F  = " + formatByte(state->F));
+  interface->print("B  = " + formatByte(state->B ) + "    C  = " + formatByte(state->C));
+  interface->print("D  = " + formatByte(state->D ) + "    E  = " + formatByte(state->E));
+  interface->print("H  = " + formatByte(state->H ) + "    L  = " + formatByte(state->L));
+  interface->print("SP = " + formatShort(state->SP)  + "  PC = " + formatShort(state->PC));
 }
 
-void showMemoryRange (State *state, Short ini, Short fi)
+void showMemoryRange (State *state, Short ini, Short fi, Interface *interface)
 {
   for (int i = ini; i <= fi; i++) {
-    Serial.println("[" + formatShort(i) + "] = " + formatByte(state->memory[i]));
+    interface->print("[" + formatShort(i) + "] = " + formatByte(state->memory[i]));
   }
 }

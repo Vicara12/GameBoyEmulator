@@ -14,26 +14,26 @@ void setup() {
   Serial.begin(9600);
 }
 
-void benchmark (Byte opcode, Byte data0, Byte data1, State *state, Interface *interface)
+void benchmark (Byte opcode, Byte data0, Byte data1, State *state)
 {
   Serial.println("\nBegan testing!");
   int total = 0;
   auto t_ini = micros();
   for (int i = 0; i < int(1e6); i++) {
-    total += executeInstruction(opcode, data0, data1, state, interface);
+    total += executeInstruction(opcode, data0, data1, state);
     // total += instr_LDX_A_mem_HL(state, true, true);
   }
   auto t_fi = micros();
   Serial.println("Took " +  String((t_fi-t_ini)/1e6) + " secs " + String(total) + ".");
 }
 
-void benchmarkAll (State *state,Interface *interface)
+void benchmarkAll (State *state)
 {
   Serial.println("\nBegan testing!");
   for (int opcode = 0; opcode <= 0xFF; opcode++) {
     auto t_ini = micros();
     for (int i = 0; i < int(1e4); i++) {
-      executeInstruction(opcode, 0x00, 0x00, state, interface);
+      executeInstruction(opcode, 0x00, 0x00, state);
     }
     auto t_fi = micros();
     float ratio = (t_fi-t_ini)/1e4;
@@ -48,7 +48,7 @@ void benchmarkAll (State *state,Interface *interface)
     for (int opcode = 0; opcode <= 0xFF; opcode++) {
     auto t_ini = micros();
     for (int i = 0; i < int(1e4); i++) {
-      executeInstruction(0xCB, opcode, 0x00, state, interface);
+      executeInstruction(0xCB, opcode, 0x00, state);
     }
     auto t_fi = micros();
     float ratio = (t_fi-t_ini)/1e4;
@@ -65,25 +65,17 @@ void benchmarkAll (State *state,Interface *interface)
 
 void testExecBlock (State *state, Interface *interface)
 {
-  std::pair<int, bool> exec_result;
-  initializeState(state, interface);
+  initializeState(state);
   Serial.println("Beginning execution...");
-  int total_cycles = 0;
   auto t_ini = micros();
-  bool keep = true;
-  while (keep) {
-    exec_result = executeInstrBlock(state, interface);
-    total_cycles += exec_result.first;
-    keep = exec_result.second;
-    Serial.println("PC at: " + formatShort(state->PC));
-  }
+  execute(state, interface);
   auto t_fi = micros();
-  float cycles = total_cycles;
+  float cycles = state->cycles;
   float t_theo = cycles*1e6/CLOCK_FREQ;
   Serial.println("Finished! Took: " + String(t_fi - t_ini) + " us / " + String(t_theo) + " us.");
   Serial.println("State:");
-  showRegisters(state);
-  showMemoryRange(state, 0xFF05, 0xFFFF);
+  showRegisters(state, interface);
+  showMemoryRange(state, 0xFF05, 0xFFFF, interface);
 }
 
 void loop() {

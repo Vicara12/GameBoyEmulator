@@ -1,12 +1,13 @@
 #pragma once
 
+#include "emulator/types.h"
 #include "emulator/state.h"
-#include <Arduino.h>
+#include "emulator/interface.h"
 
-String formatByte (Byte b);
+std::string formatByte (Byte b);
 
-String formatShort (Short s);
+std::string formatShort (Short s);
 
-void showRegisters (State *state);
+void showRegisters (State *state, Interface *interface);
 
-void showMemoryRange (State *state, Short ini, Short fi);
+void showMemoryRange (State *state, Short ini, Short fi, Interface *interface);

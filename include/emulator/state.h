@@ -24,15 +24,23 @@
 
 // Special registers
 #define P1_REGISTER   0xFF00 // Controller input data
+
 #define DIV_REGISTER  0xFF04 // Clock which is updated at 16384Hz (one overflow per second)
 #define TIMA_REGISTER 0xFF05 // Clock incremented at freq specified by TAC, at of TMA is written
 #define TMA_REGISTER  0xFF06 // Value written to TIMA at overflow
 #define TAC_REGISTER  0xFF07 // Timer control
 
-// Get TAC fields
+#define IF_REGISTER   0xFF0F // Interrupt flag
+#define IE_REGISTER   0xFFFF // Interrupt Enable
+
 #define GET_TAC_CLOCK_SEL(value_TAC) (value_TAC & 0x03)
 #define GET_TAC_ENABLE(value_TAC) ((value_TAC & 0x4) != 0)
 
+#define VBLANK_INTERRUPT  0x01
+#define LCD_INTERRUPT     0x02
+#define TIMER_INTERRUPT   0x04
+#define SERIAL_INTERRUPT  0x08
+#define JOYPAD_INTERRUPT  0x10
 
 // Flag setting utils
 #define ZERO_FLAG       0x80
@@ -97,6 +105,7 @@ typedef struct {
   Byte memory[MEM_SIZE] = {0};
   bool halted = false;
   bool stopped = false;
+  bool ime = false; // Interrupt Master Enable cpu flag
   Byte buttons_pressed = 0; // The emulator should call the function that checks this frequently
   ulong cycles = 0; // Total execution cycles (execution clock)
   ulong cycles_last_DIV = 0;  // Counts the execution cycles of the last write to DIV

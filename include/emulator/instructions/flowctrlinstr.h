@@ -49,7 +49,7 @@ inline int instr_JR_cc_n (SByte n, Byte flag, bool set, State *state)
 inline int instr_CALL_nn (Byte lsb, Byte msb, State *state)
 {
   writeMem(--state->SP, state->PC >> 8, state);   // push msb of PC
-  writeMem(--state->SP, state->PC & 0xFF, state); // push lsb of PC  
+  writeMem(--state->SP, state->PC & 0xFF, state); // push lsb of PC
   state->PC = JOIN_REGS(msb, lsb);
   return 12;
 }
@@ -91,6 +91,6 @@ inline int instr_RET_cc (Byte flag, bool set, State *state)
 // RETI: RET + enable interrupts
 inline int instr_RETI (State *state)
 {
-  SET_INTERRUPT_STATUS(0x01, state); // Activate interrupts
+  state->ime = true; // Activate interrupts
   return instr_RET(state);
 }
