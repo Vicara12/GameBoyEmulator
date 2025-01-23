@@ -6,7 +6,8 @@
 std::string formatByte (Byte b)
 {
   std::stringstream ss;
-  ss << "0x" << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << b;
+  // Convert b to short because for some reason it does not like uint8_t (Byte)
+  ss << "0x" << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << Short(b);
   return ss.str();
 }
 
@@ -19,16 +20,16 @@ std::string formatShort (Short s)
 
 void showRegisters (State *state, Interface *interface)
 {
-  interface->print("A  = " + formatByte(state->A ) + "    F  = " + formatByte(state->F));
-  interface->print("B  = " + formatByte(state->B ) + "    C  = " + formatByte(state->C));
-  interface->print("D  = " + formatByte(state->D ) + "    E  = " + formatByte(state->E));
-  interface->print("H  = " + formatByte(state->H ) + "    L  = " + formatByte(state->L));
-  interface->print("SP = " + formatShort(state->SP)  + "  PC = " + formatShort(state->PC));
+  interface->print("A  = " + formatByte(state->A ) + "    F  = " + formatByte(state->F) + "\n");
+  interface->print("B  = " + formatByte(state->B ) + "    C  = " + formatByte(state->C) + "\n");
+  interface->print("D  = " + formatByte(state->D ) + "    E  = " + formatByte(state->E) + "\n");
+  interface->print("H  = " + formatByte(state->H ) + "    L  = " + formatByte(state->L) + "\n");
+  interface->print("SP = " + formatShort(state->SP)  + "  PC = " + formatShort(state->PC) + "\n");
 }
 
 void showMemoryRange (State *state, Short ini, Short fi, Interface *interface)
 {
   for (int i = ini; i <= fi; i++) {
-    interface->print("[" + formatShort(i) + "] = " + formatByte(state->memory[i]));
+    interface->print("[" + formatShort(i) + "] = " + formatByte(state->memory[i]) + "\n");
   }
 }
