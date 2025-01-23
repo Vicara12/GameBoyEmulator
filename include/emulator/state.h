@@ -22,6 +22,18 @@
 #define BUTTON_START  0x80
 
 
+// Special registers
+#define P1_REGISTER   0xFF00 // Controller input data
+#define DIV_REGISTER  0xFF04 // Clock which is updated at 16384Hz (one overflow per second)
+#define TIMA_REGISTER 0xFF05 // Clock incremented at freq specified by TAC, at of TMA is written
+#define TMA_REGISTER  0xFF06 // Value written to TIMA at overflow
+#define TAC_REGISTER  0xFF07 // Timer control
+
+// Get TAC fields
+#define GET_TAC_CLOCK_SEL(value_TAC) (value_TAC & 0x03)
+#define GET_TAC_ENABLE(value_TAC) ((value_TAC & 0x4) != 0)
+
+
 // Flag setting utils
 #define ZERO_FLAG       0x80
 #define SUBTRACT_FLAG   0x40
@@ -67,6 +79,10 @@
 // Memory access utils
 #define SET_INTERRUPT_STATUS(value, state) state->memory[0xFFFF] = value;
 
+
+ulong getDivFromTAC (Byte value_TAC);
+
+
 typedef struct {
   Reg A = 0;
   Reg B = 0;
@@ -82,7 +98,13 @@ typedef struct {
   bool halted = false;
   bool stopped = false;
   Byte buttons_pressed = 0; // The emulator should call the function that checks this frequently
+  ulong cycles = 0; // Total execution cycles (execution clock)
+  ulong cycles_last_DIV = 0;  // Counts the execution cycles of the last write to DIV
+  ulong cycles_last_TIMA = 0; // Cycles of last TIMA overflow
+  ulong cycles_div_TIMA = getDivFromTAC(0);
+  bool enable_TIMA = false;
 } State;
+
 
 inline void writeMem (Short addr, Byte data, State* state)
 {
@@ -96,12 +118,21 @@ inline void writeMem (Short addr, Byte data, State* state)
   }
   // Check write to numpad register 0xFF00 and some combination is to be read (bits 4 or 5 to LOW),
   // if so update contents with numpad input
-  else if (addr == 0xFF00 and (data & 0x30) != 0x30) {
+  else if (addr == P1_REGISTER and (data & 0x30) != 0x30) {
     bool read_letters = (data & 0x20 == 0); // low at bit 5 indicates A/B/Sel/Start read
     // If we want to read arrows then we keep 4 lower bits, otherwise we want the 4 upper bits of
     // buttons_pressed as the 4 lower bits of input
     Byte input = (state->buttons_pressed >> (4*read_letters)) & 0x0F;
     // Update input bits with numpad input. Recall that button pressed means LOW (0) and vice versa
     state->memory[0xFF00] = 0x30 | (0x0F & (~input));
+  }
+  // If write to DIV (0xFF04) register, set its value to zero
+  else if (addr == DIV_REGISTER) {
+    state->cycles_last_DIV = state->cycles; // it will be set to zero next time its updated
+  }
+  // If write to TAC, change state with TIMA enabled/disabled and clock div
+  else if (addr == TAC_REGISTER) {
+    state->enable_TIMA = GET_TAC_ENABLE(data);
+    state->cycles_div_TIMA = getDivFromTAC(data);
   }
 }

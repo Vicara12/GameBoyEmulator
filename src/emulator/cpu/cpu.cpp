@@ -10,26 +10,21 @@ void initializeState (State *state)
   loadBootRoom(state);
 }
 
-// Execute INSTR_BLOCK_N instructions. If execution flow is interrupted earlier,
-// function returns automatically. Returns number of clock cycles executed and
-// true if it finished the INSTR_BLOCK_N or false if it terminated from other source.
-std::pair<int, bool> executeInstrBlock (State *state, Interface *interface)
+// Execute until STOP or HALT found
+void execute (State *state, Interface *interface)
 {
-  int n_instrs = 0;
-  int total_cycles = 0;
+  ulong n_instrs = 0;
 
-  while (n_instrs < INSTR_BLOCK_N) {
+  while (not (state->halted or state->stopped)) {
     Byte opcode = state->memory[state->PC];
     Byte data0 = state->memory[(state->PC+1)&0xFFFF];
     Byte data1 = state->memory[(state->PC+2)&0xFFFF];
-    if (state->PC >= 0x0100) {
+    if (state->PC >= 0x0100) { // DEBUGCODE
       break;
     }
     state->PC += instrLen(opcode);
-    total_cycles += executeInstruction(opcode, data0, data1, state);
-    if (state->halted or state->stopped) {
-      break;
-    }
+    state->cycles += executeInstruction(opcode, data0, data1, state);
+
     // Update buttons pressed each INSTRS_PER_BUTTON_UPDATE instructions
     if (n_instrs%INSTRS_PER_BUTTON_UPDATE == 0) {
       Byte old_buttons_pressed = state->buttons_pressed;
@@ -39,8 +34,20 @@ std::pair<int, bool> executeInstrBlock (State *state, Interface *interface)
         // TODO: button interrupt
       }
     }
+
+    // Update time registers
+    state->memory[DIV_REGISTER] = (state->cycles - state->cycles_last_DIV)/256;
+    // TODO: reset this register when the STOP mode ends
+    if (state->enable_TIMA) {
+      Byte old_TIMA = state->memory[TIMA_REGISTER];
+      state->memory[TIMA_REGISTER] = (state->cycles - state->cycles_last_TIMA)/state->cycles_div_TIMA;
+      // Detect TIMA overflow
+      if (old_TIMA > state->memory[TIMA_REGISTER]) {
+        state->memory[TIMA_REGISTER] = state->memory[TMA_REGISTER];
+        // TODO: trigger timer overflow interrupt
+      }
+    }
+
     n_instrs++;
   }
-
-  return std::make_pair(total_cycles, n_instrs == INSTR_BLOCK_N);
 }

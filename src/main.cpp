@@ -90,7 +90,7 @@ void loop() {
   Serial.println("\nBegan testing!");
   State *state = new State;
   Interface *interface = new Interface;
-  interface->readButtons = [](bool read_dir){return 0;};
+  interface->readButtons = [](){return 0;};
   interface->print = [](std::string data) {Serial.print(data.c_str());};
   interface->logData = [](std::string data) {};
   // benchmark(0xF8, 0x01, 0x00, state);
