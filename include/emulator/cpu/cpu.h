@@ -1,8 +1,9 @@
-#pragma once
-
 /*
 * This file handles the instruction execution
 */
+
+#pragma once
+
 
 #include <utility>
 #include "emulator/state.h"

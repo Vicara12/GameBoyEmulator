@@ -5,7 +5,7 @@
 */
 
 #include "emulator/state.h"
-#include "emulator/interface.h"
+#include "emulator/utils/memory.h"
 
 
 // When using Byte data type the function given to f should use data type Short (2 bytes), as the

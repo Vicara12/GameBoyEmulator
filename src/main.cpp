@@ -6,7 +6,7 @@
 #include "emulator/utils/debug.h"
 
 
-// #define TESTING
+#define TESTING
 
 #ifndef TESTING
 
@@ -72,7 +72,7 @@ void testExecBlock (State *state, Interface *interface)
   auto t_fi = micros();
   float cycles = state->cycles;
   float t_theo = cycles*1e6/CLOCK_FREQ;
-  Serial.println("Finished! Took: " + String(t_fi - t_ini) + " us / " + String(t_theo) + " us.");
+  Serial.println("Finished! Took: " + String(t_fi - t_ini) + " us / " + String(t_theo) + " us max.");
   Serial.println("State:");
   showRegisters(state, interface);
   showMemoryRange(state, 0xFF05, 0xFFFF, interface);

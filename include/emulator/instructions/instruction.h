@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include "emulator/state.h"
-#include "emulator/interface.h"
 #include "emulator/instructions/instruction.h"
 #include "emulator/instructions/loadinstr.h"
 #include "emulator/instructions/artihmeticinstr.h"

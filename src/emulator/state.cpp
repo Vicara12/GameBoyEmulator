@@ -15,4 +15,5 @@ ulong getDivFromTAC (Byte value_TAC)
   default:
     break;
   }
+  return 1;
 }

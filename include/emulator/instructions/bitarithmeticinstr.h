@@ -5,7 +5,8 @@
 */
 
 #include "emulator/state.h"
-#include "emulator/interface.h"
+#include "emulator/utils/memory.h"
+
 
 // SWAP n: swap upper and lower nibbles of n
 inline int instr_SWAP_n (Reg &n, State *state)

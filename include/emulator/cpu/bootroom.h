@@ -1,8 +1,8 @@
-#pragma once
-
 /*
-* This file contains the data from the GB's initial boot program.
+* Functionalities regarding the initialization of the emulator.
 */
+
+#pragma once
 
 
 #include "emulator/state.h"

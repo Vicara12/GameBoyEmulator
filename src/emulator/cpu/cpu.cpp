@@ -16,14 +16,14 @@ void execute (State *state, Interface *interface)
 {
   ulong n_instrs = 0;
 
-  while (not (state->halted or state->stopped)) {
+  while (not (state->halted or state->stopped) and n_instrs < 10000) {
     Byte opcode = state->memory[state->PC];
     Byte data0 = state->memory[(state->PC+1)&0xFFFF];
     Byte data1 = state->memory[(state->PC+2)&0xFFFF];
     if (state->PC >= 0x0100) { // DEBUGCODE
       break;
     }
-    if (n_instrs%10000 == 0) {
+    if (n_instrs%10000 == 0) { // DEBUGCODE
       interface->print("PC at: " + formatShort(state->PC) + "\n");
     }
     state->PC += instrLen(opcode);
