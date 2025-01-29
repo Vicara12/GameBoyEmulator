@@ -38,7 +38,9 @@ void execute (State *state, Interface *interface)
       // Detect TIMA overflow
       if (old_TIMA > state->memory[TIMA_REGISTER]) {
         state->memory[TIMA_REGISTER] = state->memory[TMA_REGISTER];
-        state->memory[IF_REGISTER] &= TIMER_INTERRUPT; // Set timer interrupt
+        if (IS_INTERRUPT_ENABLED(state, TIMER_INTERRUPT)) {
+          state->memory[IF_REGISTER] &= TIMER_INTERRUPT; // Set timer interrupt if enabled
+        }
       }
     }
 
@@ -47,7 +49,8 @@ void execute (State *state, Interface *interface)
       Byte old_buttons_pressed = state->buttons_pressed;
       state->buttons_pressed = interface->readButtons();
       // If any change in button pressed activate interrupt
-      if (old_buttons_pressed ^ state->buttons_pressed != 0) {
+      if (IS_INTERRUPT_ENABLED(state, JOYPAD_INTERRUPT) and
+          old_buttons_pressed ^ state->buttons_pressed != 0) {
         state->memory[IF_REGISTER] &= JOYPAD_INTERRUPT;
       }
     }

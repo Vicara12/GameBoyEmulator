@@ -21,9 +21,9 @@ void execute (State *state, Interface *interface);
 
 inline void checkAndCallInterrupt (State *state)
 {
-  // Valid interrupts are those that are triggered and enabled
-  Byte valid_interrupts = state->memory[IE_REGISTER] & state->memory[IF_REGISTER];
-  if (valid_interrupts == 0) {
+  Byte if_reg = state->memory[IF_REGISTER];
+  // Check first if there is any interrupt
+  if (if_reg == 0) {
     return;
   }
 
@@ -31,7 +31,7 @@ inline void checkAndCallInterrupt (State *state)
   for (Byte i = 0; i < 5; i++) {
     Byte interrupt_flag = 1 << i;
     // If both IE and IF's corresponding bits are set to one
-    if (valid_interrupts & interrupt_flag) {
+    if (if_reg & interrupt_flag) {
       state->ime = false;
       state->memory[IF_REGISTER] = state->memory[IF_REGISTER] & (~interrupt_flag); // clear interrupt bit
       // Push PC to stack

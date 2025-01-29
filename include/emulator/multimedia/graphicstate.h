@@ -36,6 +36,12 @@
 #define LCDC_OBJ_ENABLE(state)          (state->memory[LCDC_REGISTER] & 0x02 != 0)
 #define LCDC_BG_WIN_ENABLE(state)       (state->memory[LCDC_REGISTER] & 0x01 != 0)
 
+// Screen modes
+#define MODE0_HBLANK 0
+#define MODE1_VBLANK 1
+#define MODE2_OAMSC  2
+#define MODE3_DRAW   3
+
 using ScreenLineData = std::array<Byte, SCREEN_PX_W>;
 
 
@@ -45,6 +51,7 @@ typedef struct {
 } ScreenLine;
 
 typedef struct {
-  ulong frame_last_updated = 0;
+  Byte last_mode = 0;
+  bool ly_lyc_flag_already_set = false;
   std::array<ScreenLine, SCREEN_PX_H> line;
 } ScreenFrame;

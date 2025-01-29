@@ -34,6 +34,8 @@
 #define SERIAL_INTERRUPT  0x08
 #define JOYPAD_INTERRUPT  0x10
 
+#define IS_INTERRUPT_ENABLED(state, interrupt) ((state->memory[IE_REGISTER] & interrupt) != 0)
+
 // Flag setting utils
 #define ZERO_FLAG       0x80
 #define SUBTRACT_FLAG   0x40

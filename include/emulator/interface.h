@@ -21,5 +21,5 @@ typedef struct {
 
   // This function receives a ScreenFrame, which contains the value of each pixel in an intensity
   // scale from 0 to 3, where 0 is white and 3 black, and prints it to screen
-  std::function<void(ScreenFrame)> printToScreen = nullptr;
+  std::function<void(ScreenFrame)> updateScreen = nullptr;
 } Interface;
