@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <string>
 #include "emulator/types.h"
 #include "emulator/multimedia/graphicstate.h"
 

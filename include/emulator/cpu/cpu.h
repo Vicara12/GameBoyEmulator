@@ -42,7 +42,7 @@ void updateButtons (ulong n_instrs, State *state, Interface *interface)
     state->buttons_pressed = interface->readButtons();
     // If any change in button pressed activate interrupt
     if (IS_INTERRUPT_ENABLED(state, JOYPAD_INTERRUPT) and
-        old_buttons_pressed ^ state->buttons_pressed != 0) {
+        (old_buttons_pressed ^ state->buttons_pressed) != 0) {
       state->memory[IF_REGISTER] &= JOYPAD_INTERRUPT;
     }
   }

@@ -19,7 +19,7 @@ void run (State *state, Interface *interface)
   // TODO
 }
 
-void emulator (Interface *interface, GameRom *game_rom = nullptr)
+void emulator (Interface *interface, GameRom *game_rom)
 {
   State *state = new State;
   boot(state, interface, game_rom);

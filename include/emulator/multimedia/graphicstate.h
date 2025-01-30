@@ -27,14 +27,14 @@
 #define LYC_REGISTER  0xFF45 // LY compare
 #define DMA_REGISTER  0xFF46 // Transfer from ROM/RAM to OAM
 
-#define LCDC_LCD_ENABLED(state)         (state->memory[LCDC_REGISTER] & 0x80 != 0)
-#define LCDC_WIN_TILE_MAP(state)        (state->memory[LCDC_REGISTER] & 0x40 != 0)
-#define LCDC_WIN_ENABLE(state)          (state->memory[LCDC_REGISTER] & 0x20 != 0)
-#define LCDC_BG_W_TILE_DATA_AREA(state) (state->memory[LCDC_REGISTER] & 0x10 != 0)
-#define LCDC_BG_TILE_MAP(state)         (state->memory[LCDC_REGISTER] & 0x08 != 0)
-#define LCDC_OBJ_SIZE(state)            (state->memory[LCDC_REGISTER] & 0x04 != 0)
-#define LCDC_OBJ_ENABLE(state)          (state->memory[LCDC_REGISTER] & 0x02 != 0)
-#define LCDC_BG_WIN_ENABLE(state)       (state->memory[LCDC_REGISTER] & 0x01 != 0)
+#define LCDC_LCD_ENABLED(state)         ((state->memory[LCDC_REGISTER] & 0x80) != 0)
+#define LCDC_WIN_TILE_MAP(state)        ((state->memory[LCDC_REGISTER] & 0x40) != 0)
+#define LCDC_WIN_ENABLE(state)          ((state->memory[LCDC_REGISTER] & 0x20) != 0)
+#define LCDC_BG_W_TILE_DATA_AREA(state) ((state->memory[LCDC_REGISTER] & 0x10) != 0)
+#define LCDC_BG_TILE_MAP(state)         ((state->memory[LCDC_REGISTER] & 0x08) != 0)
+#define LCDC_OBJ_SIZE(state)            ((state->memory[LCDC_REGISTER] & 0x04) != 0)
+#define LCDC_OBJ_ENABLE(state)          ((state->memory[LCDC_REGISTER] & 0x02) != 0)
+#define LCDC_BG_WIN_ENABLE(state)       ((state->memory[LCDC_REGISTER] & 0x01) != 0)
 
 // Screen modes
 #define MODE0_HBLANK 0

@@ -1,4 +1,7 @@
 .pio
 .vscode
 doc
+build
+dep
+bin
 */README

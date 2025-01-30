@@ -24,7 +24,7 @@ inline void writeMem (Short addr, Byte data, State* state)
   // Check write to numpad register 0xFF00 and some combination is to be read (bits 4 or 5 to LOW),
   // if so update contents with numpad input
   else if (addr == P1_REGISTER and (data & 0x30) != 0x30) {
-    bool read_letters = (data & 0x20 == 0); // low at bit 5 indicates A/B/Sel/Start read
+    bool read_letters = ((data & 0x20) == 0); // low at bit 5 indicates A/B/Sel/Start read
     // If we want to read arrows then we keep 4 lower bits, otherwise we want the 4 upper bits of
     // buttons_pressed as the 4 lower bits of input
     Byte input = (state->buttons_pressed >> (4*read_letters)) & 0x0F;

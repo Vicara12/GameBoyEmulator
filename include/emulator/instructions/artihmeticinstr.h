@@ -152,7 +152,7 @@ inline int instr_ADD_HL_n (DReg reg, State *state)
   DReg HL = REG_HL(state);
   COND_SET_HALF_CARRY_FLAG(state, ((HL & 0x0FFF) + (reg & 0x0FFF)) > 0x0FFF);
   COND_SET_CARRY_FLAG(state, (uint32_t(reg) + uint32_t(HL)) > 0xFFFF);
-  SET_REG_HL(HL + reg, state);
+  SET_REG_HL((HL + reg), state);
   return 8;
 }
 
