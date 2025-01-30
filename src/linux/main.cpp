@@ -5,6 +5,7 @@
 #include "emulator/cpu/cpu.h"
 #include "emulator/utils/initialization.h"
 #include "emulator/utils/debug.h"
+#include "tetris.h"
 
 
 void testGraphics ()
@@ -74,10 +75,10 @@ void testEmulator ()
   interface->print = [](std::string data) {std::cout << data;};
   interface->logData = [](std::string data) {};
   loadBootRom(state);
-  loadGame(state, nullptr);
+  loadGame(state, &tetris_rom);
   std::cout << "Beginning execution..." << std::endl;
   auto t_ini = micros();
-  execute(state, interface, 0x00E9);
+  execute(state, interface, 0x0100);
   auto t_fi = micros();
   float cycles = state->cycles;
   float t_theo = cycles*1e6/CLOCK_FREQ;
