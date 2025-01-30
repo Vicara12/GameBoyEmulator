@@ -1,3 +1,7 @@
+/*
+* Functions related to initializing state and memory
+*/
+
 #pragma once
 
 #include "emulator/state.h"

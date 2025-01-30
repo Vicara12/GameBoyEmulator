@@ -1,3 +1,7 @@
+/*
+* Some debugging functionalities
+*/
+
 #pragma once
 
 #include "emulator/types.h"

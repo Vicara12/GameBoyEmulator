@@ -1,5 +1,5 @@
 /*
-* This file handles the instruction execution
+* Instruction execution handling
 */
 
 #pragma once
@@ -17,7 +17,7 @@
 void execute (State *state, Interface *interface, Short breakpoint = 0xFFFF);
 
 
-void updateTimeRegisters (State *state)
+inline void updateTimeRegisters (State *state)
 {
   state->memory[DIV_REGISTER] = (state->cycles - state->cycles_last_DIV)/256;
   // TODO: reset this register when the STOP mode ends
@@ -35,7 +35,7 @@ void updateTimeRegisters (State *state)
 }
 
 
-void updateButtons (ulong n_instrs, State *state, Interface *interface)
+inline void updateButtons (ulong n_instrs, State *state, Interface *interface)
 {
   if (n_instrs%INSTRS_PER_BUTTON_UPDATE == 0) {
     Byte old_buttons_pressed = state->buttons_pressed;

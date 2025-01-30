@@ -1,3 +1,7 @@
+/*
+* Memory I/O related functions
+*/
+
 #pragma once
 
 #include "emulator/types.h"
