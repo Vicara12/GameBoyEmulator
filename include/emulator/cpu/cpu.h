@@ -9,15 +9,45 @@
 #include "emulator/state.h"
 #include "emulator/interface.h"
 
-#define CLOCK_FREQ 4194304
-#define INSTR_BLOCK_N 10000 // Instructions are executed in groups of X
 #define INSTRS_PER_BUTTON_UPDATE 64 // Each X instructions the new buttons pressed check is run
 
 
-void initializeState (State *state);
 
 // Execute instructions. If execution flow is interrupted earlier, function returns automatically.
-void execute (State *state, Interface *interface);
+void execute (State *state, Interface *interface, Short breakpoint = 0xFFFF);
+
+
+void updateTimeRegisters (State *state)
+{
+  state->memory[DIV_REGISTER] = (state->cycles - state->cycles_last_DIV)/256;
+  // TODO: reset this register when the STOP mode ends
+  if (state->enable_TIMA) {
+    Byte old_TIMA = state->memory[TIMA_REGISTER];
+    state->memory[TIMA_REGISTER] = (state->cycles - state->cycles_last_TIMA)/state->cycles_div_TIMA;
+    // Detect TIMA overflow
+    if (old_TIMA > state->memory[TIMA_REGISTER]) {
+      state->memory[TIMA_REGISTER] = state->memory[TMA_REGISTER];
+      if (IS_INTERRUPT_ENABLED(state, TIMER_INTERRUPT)) {
+        state->memory[IF_REGISTER] &= TIMER_INTERRUPT; // Set timer interrupt if enabled
+      }
+    }
+  }
+}
+
+
+void updateButtons (ulong n_instrs, State *state, Interface *interface)
+{
+  if (n_instrs%INSTRS_PER_BUTTON_UPDATE == 0) {
+    Byte old_buttons_pressed = state->buttons_pressed;
+    state->buttons_pressed = interface->readButtons();
+    // If any change in button pressed activate interrupt
+    if (IS_INTERRUPT_ENABLED(state, JOYPAD_INTERRUPT) and
+        old_buttons_pressed ^ state->buttons_pressed != 0) {
+      state->memory[IF_REGISTER] &= JOYPAD_INTERRUPT;
+    }
+  }
+}
+
 
 inline void checkAndCallInterrupt (State *state)
 {

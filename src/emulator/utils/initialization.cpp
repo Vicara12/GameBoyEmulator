@@ -1,7 +1,9 @@
-#include "emulator/cpu/bootroom.h"
+#include "emulator/utils/initialization.h"
+#include "emulator/cpu/cpu.h"
 
 
-void loadBootRoom (State *state)
+
+void loadBootRom (State *state)
 {
   Byte boot_room_data [] = {
     0x31, 0xFE, 0xFF, 0xAF, 0x21, 0xFF, 0x9F, 0x32, 0xCB, 0x7C, 0x20, 0xFB, 0x21, 0x26, 0xFF, 0x0E,
@@ -24,5 +26,27 @@ void loadBootRoom (State *state)
 
   for (Short i = 0; i < sizeof(boot_room_data); i++) {
     state->memory[i] = boot_room_data[i];
+  }
+}
+
+
+void loadGame (State *state, GameRom *game_rom)
+{
+  if (game_rom == nullptr) {
+    return;
+  }
+  for (Short i = 0x0100; i < 0x8000; i++) {
+    state->memory[i] = (*game_rom)[i];
+  }
+}
+
+
+void replaceBootRom (State *state, GameRom *game_rom)
+{
+  if (game_rom == nullptr) {
+    return;
+  }
+  for (Short i = 0x0000; i < 0x0100; i++) {
+    state->memory[i] = (*game_rom)[i];
   }
 }

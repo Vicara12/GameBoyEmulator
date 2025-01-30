@@ -1,6 +1,12 @@
 #pragma once
 
+#include <array>
+#include "emulator/types.h"
+
+
+
 #define MEM_SIZE 0x10000
+#define CLOCK_FREQ 4194304
 
 
 // Button utils
@@ -80,3 +86,6 @@
 
 // Memory access utils
 #define SET_INTERRUPT_STATUS(value, state) state->memory[0xFFFF] = value;
+
+
+using GameRom = std::array<Byte, 0x8000>;
