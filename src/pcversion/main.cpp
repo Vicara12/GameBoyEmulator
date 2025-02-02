@@ -6,27 +6,22 @@
 #include "emulator/utils/initialization.h"
 #include "emulator/utils/debug.h"
 #include "tetris.h"
+#include "pcversion/interfaceadapter.h"
 
 
-void testGraphics ()
+
+void testGraphics (const std::vector<std::vector<float>> &px_intensity,
+                   const std::array<float,3> &base_color)
 {
+  int px_size = 3;
+  int cols = px_intensity[0].size();
+  int rows = px_intensity.size();
   // Dimensions of the window and the grid
-  const int windowWidth = 400;
-  const int windowHeight = 400;
-  const int rows = 10;
-  const int cols = 10;
-  const int squareSize = windowWidth / cols;  // Adjust size of squares based on window size
-
-  // Example data for colors (values in range [0, 255])
-  std::vector<std::vector<int>> colorValues(rows, std::vector<int>(cols));
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) {
-      colorValues[i][j] = (i + j) * 20; // Example color gradient based on position
-    }
-  }
+  const int windowWidth = px_size*cols;
+  const int windowHeight = px_size*rows;
 
   // Create a window
-  sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Matrix of Colored Squares");
+  sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Game Boy");
 
   // Main loop to render the window
   while (window.isOpen()) {
@@ -36,20 +31,21 @@ void testGraphics ()
         window.close();
     }
 
-    window.clear();  // Clear the window
+    window.clear();
 
     // Draw each square with a color based on the values in the array
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
-        sf::RectangleShape square(sf::Vector2f(squareSize, squareSize));
-        int colorValue = colorValues[i][j];
-        square.setFillColor(sf::Color(colorValue, 255 - colorValue, 128));  // RGB color based on value
-        square.setPosition(j * squareSize, i * squareSize);
+        sf::RectangleShape square(sf::Vector2f(px_size, px_size));
+        square.setFillColor(sf::Color(px_intensity[i][j]*base_color[0],
+                                      px_intensity[i][j]*base_color[1],
+                                      px_intensity[i][j]*base_color[2]));
+        square.setPosition(j * px_size, i * px_size);
         window.draw(square);
       }
     }
 
-    window.display();  // Display the drawn content
+    window.display();
   }
 }
 
@@ -87,6 +83,11 @@ void testEmulator ()
   std::cout << "State:" << std::endl;
   showRegisters(state, interface);
   showMemoryRange(state, 0xFF05, 0xFFFF, interface);
+
+  ScreenPixels px_intensity;
+  std::array<float,3> base_color = {1.0, 1.0, 1.0};
+  screenFrameToScreenPixels(&(state->screen), px_intensity);
+  testGraphics(px_intensity, base_color);
 }
 
 
