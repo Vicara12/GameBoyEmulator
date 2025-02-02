@@ -20,6 +20,12 @@ typedef struct {
   // This function takes a string and stores it as a log (in a log file or alike)
   std::function<void(std::string)> logData = nullptr;
 
+  // This function should return a number introduced by the user (input is in HEX)
+  std::function<int()> userHexInt = nullptr;
+
+  // This function should return the current real time in microseconds
+  std::function<ulong()> realTimeMicros = nullptr;
+
   // This function receives a ScreenFrame, which contains the value of each pixel in an intensity
   // scale from 0 to 3, where 0 is white and 3 black, and prints it to screen
   std::function<void(ScreenFrame)> updateScreen = nullptr;

@@ -78,10 +78,10 @@ inline void updateLCDStatusRegs (Byte line_n, Byte mode, State *state)
 inline PaletteColors colorsFromPalette(Byte palette, bool object)
 {
   PaletteColors colors = {
-    (object ? COLOR_TRANS : (palette & 0x03)),
-    (palette & 0x0C) >> 2,
-    (palette & 0x30) >> 4,
-    (palette & 0xC0) >> 6
+    Byte(object ? COLOR_TRANS : (palette & 0x03)),
+    Byte((palette >> 2) & 0x03),
+    Byte((palette >> 4) & 0x03),
+    Byte((palette >> 6) & 0x03)
   };
   return colors;
 }
@@ -139,23 +139,23 @@ inline void getTileLine (Short addr, Byte tile_line, bool is_object, bool use_ob
 }
 
 
-inline ScreenLineData renderLineOBJ (Byte line_n, State *state)
+inline std::array<Byte, SCREEN_PX_W> renderLineOBJ (Byte line_n, State *state)
 {
   // TODO
 }
 
 
-inline ScreenLineData renderLineBGW (Byte line_n, State *state)
+inline std::array<Byte, SCREEN_PX_W> renderLineBGW (Byte line_n, State *state)
 {
   // If master BG and Window enable is off return white line
   if (not LCDC_BG_WIN_ENABLED(state)) {
-    ScreenLineData line;
+    std::array<Byte, SCREEN_PX_W> line;
     line.fill(COLOR_WHITE);
     return line;
   }
 
   // Get the entire BG screen line from the 256x256 map
-  std::array<Byte,32> bg_line;
+  std::array<Byte,256> bg_line;
   Byte scy = state->memory[SCY_REGISTER]; // Viewport Y position
   Byte scx = state->memory[SCX_REGISTER]; // Viewport X position
   Short base_addr_bg = (LCDC_BG_TILE_MAP_HIGH(state) ? 0x9C00 : 0x9800); // Select bg tile map area
@@ -164,40 +164,46 @@ inline ScreenLineData renderLineBGW (Byte line_n, State *state)
   Byte tile_line = bg_line_n%8; // Number of the line in the tile (0 to 7, both inclusive)
   Short addr_left_tile = base_addr_bg + tile_y*32; // Addr of the tile on the left
   for (Short i = 0; i < 32; i++) {
-    getTileLine(addr_left_tile + i, tile_line, false, false, &bg_line + i*8, state);
+    getTileLine(addr_left_tile + i, tile_line, false, false, &(bg_line[0]) + i*8, state);
   }
 
-  ScreenLineData bg_w_viewport_line;
+  std::array<Byte, SCREEN_PX_W> bg_w_viewport_line;
   // If enabled, get the window pixels and merge them with BG. Otherwise just copy BG pixels.
   if (LCDC_WIN_ENABLE(state)) {
     // TODO draw window
   } else {
     for (int i = 0; i < SCREEN_PX_W; i++) {
       bg_w_viewport_line[i] = bg_line[(i+scx)%256];
-    }  
+    }
   }
 
   return bg_w_viewport_line;
 }
 
 
+inline float colorNumToFloat (Byte color)
+{
+  switch (color) {
+    case COLOR_WHITE:
+      return 1.00;
+    case COLOR_LGRAY:
+      return 0.66;
+    case COLOR_DGRAY:
+      return 0.33;
+    case COLOR_BLACK:
+      return 0.00;
+  }
+}
+
+
 inline void renderLine (Byte line_n, State *state)
 {
-  ScreenLineData obj_line = renderLineOBJ(line_n, state);
-  ScreenLineData bgw_line = renderLineBGW(line_n, state);
+  std::array<Byte, SCREEN_PX_W> obj_line = renderLineOBJ(line_n, state);
+  std::array<Byte, SCREEN_PX_W> bgw_line = renderLineBGW(line_n, state);
   // Merge BG, Window and Object pixels and write to screen as float intensity
   for (Byte i = 0; i < SCREEN_PX_W; i++) {
     Byte pixel_color = (obj_line[i] == COLOR_TRANS ? bgw_line[i] : obj_line[i]);
-    switch (pixel_color) {
-      case COLOR_WHITE:
-        state->screen.line[line_n].pixel[i] = 1.00;
-      case COLOR_LGRAY:
-        state->screen.line[line_n].pixel[i] = 0.66;
-      case COLOR_DGRAY:
-        state->screen.line[line_n].pixel[i] = 0.33;
-      case COLOR_BLACK:
-        state->screen.line[line_n].pixel[i] = 0.00;
-    }
+    state->screen.line[line_n].pixel[i] = colorNumToFloat(pixel_color);
   }
 }
 
