@@ -36,9 +36,6 @@ inline int instrLen (Byte opcode)
   // LDH (a8), A and LDH A, (a8)
   case 0xE0:
   case 0xF0:
-  // LD (C), A and LD A, (C)
-  case 0xE2:
-  case 0xF2:
   // ADD/ADC A, d8 and SUB/SBC/AND/OR/XOR/CP d8
   case 0xC6:
   case 0xD6:

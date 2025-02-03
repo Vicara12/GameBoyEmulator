@@ -10,6 +10,7 @@
 #include "emulator/multimedia/graphicstate.h"
 
 
+
 inline Byte getMode (State *state, Byte &current_line)
 {
   ulong current_dot = state->cycles%DOTS_PER_FRAME;
@@ -117,8 +118,8 @@ inline void getTileLine (Short addr, Byte tile_line, bool is_object, bool use_ob
   }
   // Retrieve tile data and get palette indices from it
   std::array<Byte,2> tile_data;
-  tile_data[0] = tile_data_address + tile_line*2;
-  tile_data[1] = tile_data_address + tile_line*2 + 1;
+  tile_data[0] = state->memory[tile_data_address + tile_line*2];
+  tile_data[1] = state->memory[tile_data_address + tile_line*2 + 1];
   std::array<Byte,8> palette_ids;
   for (Byte i = 0; i < 8; i++) {
     Byte msb = ((tile_data[1] & (1 << (7-i))) != 0); // 7-i because lsb is tile's rightmost pixel
@@ -141,7 +142,9 @@ inline void getTileLine (Short addr, Byte tile_line, bool is_object, bool use_ob
 
 inline std::array<Byte, SCREEN_PX_W> renderLineOBJ (Byte line_n, State *state)
 {
-  // TODO
+  std::array<Byte, SCREEN_PX_W> line_obj;
+  line_obj.fill(COLOR_TRANS);
+  return line_obj;
 }
 
 
@@ -224,7 +227,7 @@ inline void updateGraphics (State *state, Interface *interface)
   if (mode == MODE0_HBLANK and current_frame != state->screen.line[line_n].frame_last_updated) {
     renderLine(line_n, state);
     // If rendered last line of frame and frame has been rendered from line 0, call screen update
-    if (line_n == SCREEN_PX_H-1 and current_frame != state->screen.line[0].frame_last_updated) {
+    if (line_n == SCREEN_PX_H-1 and current_frame == state->screen.line[0].frame_last_updated) {
       interface->updateScreen(state->screen);
     }
     state->screen.line[line_n].frame_last_updated = current_frame;

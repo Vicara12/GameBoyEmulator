@@ -11,9 +11,7 @@
 
 
 
-void testGraphics (
-                   std::array<std::array<float,256>,256> &px_intensity,
-                  //  const ScreenPixels &px_intensity,
+void testGraphics (const ScreenPixels &px_intensity,
                    const std::array<float,3> &base_color)
 {
   int px_size = 3;
@@ -83,10 +81,10 @@ void testEmulator (Interface *interface)
   showMemoryRange(state, 0xFF40, 0xFF4B, interface);
   showMemoryRange(state, 0xFFFF, 0xFFFF, interface);
 
-  ScreenPixels px_intensity;
+  ScreenPixels px_intensity(SCREEN_PX_H, std::vector<float>(SCREEN_PX_W));
   std::array<float,3> base_color = {255, 255, 255};
   screenFrameToScreenPixels(&(state->screen), px_intensity);
-  // testGraphics(px_intensity, base_color);
+  testGraphics(px_intensity, base_color);
 }
 
 
@@ -94,7 +92,7 @@ void debugBootRom (Interface *interface)
 {
   State *state = runBootRomInDebug(interface, &tetris_rom);
   std::array<std::array<Byte,256>,256> bg;
-  std::array<std::array<float,256>,256> bg_intensity;
+  ScreenPixels bg_intensity(256, std::vector<float>(256));
 
   Short base_addr = 0x9800;
   // Short base_addr = 0x9C00;
@@ -109,10 +107,9 @@ void debugBootRom (Interface *interface)
   for (int i = 0; i < 256; i++) {
     for (int j = 0; j < 256; j++) {
       bg_intensity[i][j] = colorNumToFloat(bg[i][j]);
-      std::cout << bg_intensity[i][j] << " ";
     }
-    std::cout << std::endl;
   }
+  std::cout << "At frame: " << state->cycles/DOTS_PER_FRAME << std::endl;
   std::array<float,3> base_color = {255, 255, 255};
   testGraphics(bg_intensity, base_color);
 }
@@ -127,6 +124,7 @@ Interface* loadPCInterface ()
   interface->logData = [](std::string data) {};
   interface->userHexInt = []() {int n; std::cin >> std::hex >> n; return n;};
   interface->realTimeMicros = [ini_t] () -> ulong {return timeDif(ini_t).count();};
+  interface->updateScreen = [] (ScreenFrame sf) {};
   return interface;
 }
 
@@ -134,7 +132,7 @@ Interface* loadPCInterface ()
 int main()
 {
   Interface *interface = loadPCInterface();
-  debugBootRom(interface);
-  // testEmulator(interface);
+  // debugBootRom(interface);
+  testEmulator(interface);
   return 0;
 }

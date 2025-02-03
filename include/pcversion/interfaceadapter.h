@@ -7,7 +7,7 @@
 #include <array>
 #include "emulator/multimedia/graphicstate.h"
 
-using ScreenPixels = std::array<std::array<float, SCREEN_PX_W>, SCREEN_PX_H>;
+using ScreenPixels = std::vector<std::vector<float>>;
 
 
 inline void screenFrameToScreenPixels (ScreenFrame *frame, ScreenPixels &pixels)

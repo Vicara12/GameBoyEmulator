@@ -21,7 +21,6 @@ void execute (State *state, Interface *interface, Short breakpoint)
     if (state->ime) {
       checkAndCallInterrupt(state);
     }
-
     n_instrs++;
   }
 }
