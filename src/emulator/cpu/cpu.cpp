@@ -22,5 +22,6 @@ void execute (State *state, Interface *interface, Short breakpoint)
       checkAndCallInterrupt(state);
     }
     n_instrs++;
+    synchExecution(state, interface);
   }
 }

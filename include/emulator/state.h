@@ -15,6 +15,11 @@ ulong getDivFromTAC (Byte value_TAC);
 
 
 typedef struct {
+  float target_speed = 1.0;
+} EmulatorConfig;
+
+
+typedef struct {
   Reg A = 0;
   Reg B = 0;
   Reg C = 0;
@@ -38,4 +43,5 @@ typedef struct {
   bool vram_write_enabled = true;
   bool oam_write_enabled = true;
   ScreenFrame screen;
+  EmulatorConfig config;
 } State;

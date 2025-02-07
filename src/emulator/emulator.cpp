@@ -6,22 +6,14 @@
 
 
 
-void boot (State *state, Interface *interface, GameRom *game_rom)
-{
-  loadBootRom(state);
-  loadGame(state, game_rom);
-  execute(state, interface, /* breakpoint = */ 0x0100);
-}
-
-
-void run (State *state, Interface *interface)
-{
-  // TODO
-}
-
 void emulator (Interface *interface, GameRom *game_rom)
 {
   State *state = new State;
-  boot(state, interface, game_rom);
-  run(state, interface);
+  // Boot sequence
+  loadBootRom(state);
+  loadGame(state, game_rom);
+  execute(state, interface, /* breakpoint = */ 0x0100);
+  replaceBootRom(state, game_rom);
+  // Run game
+  execute(state, interface, /* no breakpoint */ 0xFFFF);
 }

@@ -92,3 +92,13 @@ inline void checkAndCallInterrupt (State *state)
     }
   }
 }
+
+
+inline void synchExecution (State *state, Interface *interface)
+{
+  float emulator_time = state->config.target_speed*(state->cycles)/CLOCK_FREQ;
+  float diff_ms = std::abs(emulator_time - interface->realTimeMicros())/1000;
+  if (diff_ms > 1) {
+    interface->sleepMillis(diff_ms);
+  }
+}
