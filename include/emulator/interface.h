@@ -41,4 +41,10 @@ typedef struct {
   // This function receives a ScreenFrame, which contains the value of each pixel in an intensity
   // scale from 0 to 3, where 0 is white and 3 black, and prints it to screen
   std::function<void(ScreenFrame*)> updateScreen = nullptr;
+
+  // This function is called periodically to check if the emulation has to be ended
+  std::function<bool()> endEmulation = nullptr;
+
+  // This function is called every 0.5 seconds and provides t_emulation/t_real
+  std::function<void(float)> informEmuRate = nullptr;
 } Interface;

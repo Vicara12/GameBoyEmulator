@@ -22,6 +22,7 @@ typedef struct {
   Byte buttons = 0x00;
   std::chrono::steady_clock::time_point ini_t;
   bool ini_t_initialized = false;
+  bool end_emulation = false;
 } InterfaceData;
 
 
@@ -30,9 +31,11 @@ typedef struct {
 // Returns the initialized interface and interface data structs
 std::pair<Interface*,InterfaceData*> getInterface ();
 
-void updateButtons (Byte buttons_pressed);
+void updateButtons (InterfaceData* if_data, Byte buttons_pressed);
 
-void getNewScreen (ScreenPixels &sp);
+void getNewScreen (InterfaceData* if_data, ScreenPixels &sp);
+
+void endEmulation (InterfaceData* if_data);
 
 
 // Functions used by the emulator's interface

@@ -9,7 +9,9 @@ void execute (State *state, Interface *interface, Short breakpoint)
 {
   ulong n_instrs = 0;
 
-  while (not (state->halted or state->stopped) and state->PC != breakpoint) {
+  while (not (state->halted or state->stopped) and
+         state->PC != breakpoint and
+         not state->config.end_emulation) {
     Byte opcode = state->memory[state->PC];
     Byte data0 = state->memory[(state->PC+1)&0xFFFF];
     Byte data1 = state->memory[(state->PC+2)&0xFFFF];
@@ -21,7 +23,9 @@ void execute (State *state, Interface *interface, Short breakpoint)
     if (state->ime) {
       checkAndCallInterrupt(state);
     }
-    n_instrs++;
+    
+    state->config.end_emulation = interface->endEmulation();
     synchExecution(state, interface);
+    n_instrs++;
   }
 }

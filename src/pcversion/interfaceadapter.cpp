@@ -15,8 +15,16 @@ std::pair<Interface*,InterfaceData*> getInterface ()
   interface->sleepMillis = [] (int ms) {std::this_thread::sleep_for(std::chrono::milliseconds(ms));};
   interface->realTimeMicros = [if_data] () {return timeMicros(if_data);};
   interface->updateScreen = [if_data] (ScreenFrame *sf) {updateScreen(if_data, sf);};
+  interface->endEmulation = [if_data] () {return if_data->end_emulation;};
+  interface->informEmuRate = [] (float er) {};
 
   return std::make_pair(interface, if_data);
+}
+
+
+void endEmulation (InterfaceData* if_data)
+{
+  if_data->end_emulation = true;
 }
 
 

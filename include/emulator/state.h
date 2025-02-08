@@ -16,6 +16,7 @@ ulong getDivFromTAC (Byte value_TAC);
 
 typedef struct {
   float target_speed = 1.0;
+  bool end_emulation = false;
 } EmulatorConfig;
 
 
@@ -42,6 +43,7 @@ typedef struct {
   bool enable_TIMA = false;
   bool vram_write_enabled = true;
   bool oam_write_enabled = true;
+  ulong last_rate_call = 0; // Last time interface->informEmuRate was called
   ScreenFrame screen;
   EmulatorConfig config;
 } State;
