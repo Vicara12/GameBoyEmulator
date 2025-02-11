@@ -85,7 +85,7 @@
 #define SET_REG_HL(value, state) STORE_SHORT(value, state->H, state->L)
 
 // Memory access utils
-#define SET_INTERRUPT_STATUS(value, state) state->memory[0xFFFF] = value;
+#define SET_INTERRUPT_STATUS(value, state) state->memory[IE_REGISTER] = value;
 
 
 using GameRom = std::array<Byte, 0x8000>;

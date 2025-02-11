@@ -7,6 +7,7 @@
 #include "emulator/types.h"
 #include "emulator/state.h"
 #include "emulator/interface.h"
+#include "emulator/instructions/instruction.h"
 
 std::string formatByte (Byte b);
 
