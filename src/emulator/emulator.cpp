@@ -1,4 +1,5 @@
 #include "emulator/emulator.h"
+#include "emulator/types.h"
 #include "emulator/state.h"
 #include "emulator/interface.h"
 #include "emulator/cpu/cpu.h"

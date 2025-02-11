@@ -7,7 +7,10 @@
 #include <SFML/Graphics.hpp>
 #include <thread>
 #include "pcversion/interfaceadapter.h"
+#include "emulator/types.h"
 
+
+bool readRom (const std::string &path, GameRom &game_rom);
 
 void interfaceLoop (InterfaceData *if_data, std::thread &emulation_thread);
 

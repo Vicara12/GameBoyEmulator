@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "emulator/types.h"
 #include "emulator/state.h"
 #include "emulator/interface.h"
 

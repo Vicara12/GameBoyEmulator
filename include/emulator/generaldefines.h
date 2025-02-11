@@ -86,6 +86,3 @@
 
 // Memory access utils
 #define SET_INTERRUPT_STATUS(value, state) state->memory[IE_REGISTER] = value;
-
-
-using GameRom = std::array<Byte, 0x8000>;

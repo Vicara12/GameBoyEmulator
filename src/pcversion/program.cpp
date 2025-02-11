@@ -1,6 +1,32 @@
 #include <map>
+#include <fstream>
 #include "pcversion/program.h"
 #include "emulator/multimedia/graphicstate.h"
+
+
+
+bool readRom (const std::string &path, GameRom &game_rom)
+{
+  // Open file at the end for size
+  std::ifstream file(path, std::ios::binary | std::ios::ate);
+  if (!file.is_open()) {
+      std::cerr << "Error: Unable to open file " << path << std::endl;
+      return false;
+  }
+  std::streamsize fileSize = file.tellg();
+  if (fileSize > 0x8000) {
+    std::cerr << "Error: File is larger than " << 0x8000 << " bytes: " << fileSize << std::endl;
+    return false;
+  }
+  file.seekg(0, std::ios::beg); // go back to the beginning of the file
+  game_rom.fill(0x00);
+  if (!file.read(reinterpret_cast<char*>(&game_rom), fileSize)) {
+      std::cerr << "Error: Unable to read the file contents." << std::endl;
+      return false;
+  }
+  file.close();
+  return true;
+}
 
 
 void drawScreen (int px_size, sf::RenderWindow &window, InterfaceData *if_data)
