@@ -2,7 +2,6 @@
 #include "emulator/instructions/instruction.h"
 #include "emulator/multimedia/graphics.h"
 
-#include "emulator/utils/debug.h"
 
 
 // Execute until STOP or HALT found
@@ -23,10 +22,7 @@ void execute (State *state, Interface *interface, Short breakpoint)
     updateGraphics(state, interface);
     if (state->ime) {
       checkAndCallInterrupt(state);
-    }
-    // if (n_instrs%1 == 0)
-    //   interface->print("PC at: " + formatShort(state->PC) + " [" + formatByte(opcode) + "," + formatByte(data0) + "," + formatByte(data1) + "]\n");
-    
+    }    
     state->config.end_emulation = interface->endEmulation();
     synchExecution(state, interface);
     n_instrs++;

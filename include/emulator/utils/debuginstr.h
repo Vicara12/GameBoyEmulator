@@ -8,6 +8,17 @@
 #include "emulator/types.h"
 #include "emulator/utils/debug.h"
 
+
+typedef struct {
+  bool AF = false;
+  bool BC = false;
+  bool DE = false;
+  bool HL = false;
+  bool SP = false;
+  bool flags = false;
+  Short memory = 0x0000; // 0 = no memory touched
+} Touched;
+
 inline std::string regName (Short addr)
 {
   switch (addr)
@@ -51,7 +62,7 @@ inline std::string regName (Short addr)
   }
 }
 
-inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
+inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touched)
 {
   const std::string reg_space = "    ";
   const std::string two_reg_space = reg_space + " " + reg_space;
@@ -60,18 +71,25 @@ inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
   {
   // 0x00 - 0x3F opcode block
   case 0x00:
-    return "NOP";
+    return "NOP " + two_reg_space;
   case 0x01:
+    touched.BC = true;
     return "LD  BC," + formatShort(JOIN_REGS(data1, data0));
   case 0x02:
+    touched.AF = true;
+    touched.BC = true;
     return "LD  (BC),   A";
   case 0x03:
+    touched.BC = true;
     return "INC   BC     ";
   case 0x04:
+    touched.BC = true;
     return "INC    B     ";
   case 0x05:
+    touched.BC = true;
     return "DEC    B     ";
   case 0x06:
+    touched.BC = true;
     return "LD     B," + formatByte(data0);
   case 0x07:
     return "RLCA         ";
@@ -92,7 +110,7 @@ inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
   case 0x0F:
     return "RRCA         ";
   case 0x10:
-    return "STOP";
+    return "STOP" + two_reg_space;
   case 0x11:
     return "LD  DE," + formatShort(JOIN_REGS(data1, data0));
   case 0x12:
@@ -108,7 +126,7 @@ inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
   case 0x17:
     return "RLA          ";
   case 0x18:
-    return "JR  " + formatByte(data0) + " " + reg_space;
+    return "JR  " + std::to_string(int8_t(data0)) + " " + reg_space;
   case 0x19:
     return "ADD   HL,  DE";
   case 0x1A:
@@ -124,7 +142,7 @@ inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
   case 0x1F:
     return "RRA          ";
   case 0x20:
-    return "JR    NZ," + formatByte(data0);
+    return "JR    NZ," + std::to_string(int8_t(data0));
   case 0x21:
     return "LD  HL," + formatShort(JOIN_REGS(data1, data0));
   case 0x22:
@@ -140,7 +158,7 @@ inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
   case 0x27:
     return "DAA " + two_reg_space;
   case 0x28:
-    return "JR     Z," + formatByte(data0);
+    return "JR     Z," + std::to_string(int8_t(data0));
   case 0x29:
     return "ADD   HL,  HL";
   case 0x2A:
@@ -156,7 +174,7 @@ inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
   case 0x2F:
     return "CPL " + two_reg_space;
   case 0x30:
-    return "JR    NC," + formatByte(data0);
+    return "JR    NC," + std::to_string(int8_t(data0));
   case 0x31:
     return "LD  SP," + formatShort(JOIN_REGS(data1, data0));
   case 0x32:
@@ -172,7 +190,7 @@ inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
   case 0x37:
     return "SCF " + two_reg_space;
   case 0x38:
-    return "JR     C," + formatByte(data0);
+    return "JR     C," + std::to_string(int8_t(data0));
   case 0x39:
     return "ADD   HL,  SP";
   case 0x3A:
@@ -189,7 +207,7 @@ inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
     return "CCF " + two_reg_space;
   // Special case: HALT
   case 0x76:
-    return "HALT";
+    return "HALT" + two_reg_space;
   // 0xC0 - 0xFF opcode block
   case 0xC0:
     return "RET   NZ " + reg_space;
@@ -216,7 +234,7 @@ inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
   case 0xCC:
     return "CALL Z," + formatShort(JOIN_REGS(data1, data0));
   case 0xCD:
-    return "CALL  " + formatShort(JOIN_REGS(data1, data0));
+    return "CALL   " + formatShort(JOIN_REGS(data1, data0));
   case 0xCE:
     return "ADC    A," + formatByte(data0);
   case 0xCF:
@@ -270,7 +288,7 @@ inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
   case 0xE7:
     return "RST 0x20 " + reg_space;
   case 0xE8:
-    return "ADD   SP," + formatByte(data0);
+    return "ADD   SP," + std::to_string(int8_t(data0));
   case 0xE9:
     return "JP  (HL) " + reg_space;
   case 0xEA:
@@ -302,7 +320,7 @@ inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
   case 0xF7:
     return "RST 0x30 " + reg_space;
   case 0xF8:
-    return "LD HL,SP+" + formatByte(data0);
+    return "LD HL,SP+" + std::to_string(int8_t(data0));
   case 0xF9:
     return "LD    SP,  HL";
   case 0xFA:
@@ -324,27 +342,31 @@ inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
   std::string opname;
   Byte opcode_msb = ((opcode == 0xCB ? data0 : opcode) >> 4);
   Byte opcode_lsb = ((opcode == 0xCB ? data0 : opcode) & 0x0F);
-  if (opcode_msb >= 0x4 and opcode_msb < 0x8) {
-    opname = "LD  ";
-  }
-  else if (opcode_msb >= 0x8 and opcode_msb < 0xC) {
-    switch (opcode_msb)
-    {
-    case 0x8:
-      opname = (opcode_lsb < 0x8 ? "ADD " : "ADC ");
-      break;
-    case 0x9:
-      opname = (opcode_lsb < 0x8 ? "SUB " : "SBC ");
-      break;
-    case 0xA:
-      opname = (opcode_lsb < 0x8 ? "AND " : "XOR ");
-      break;
-    case 0xB:
-      opname = (opcode_lsb < 0x8 ? "OR  " : "CP  ");
-      break;
+  if (opcode != 0xCB) {
+    if (opcode_msb >= 0x4 and opcode_msb < 0x8) {
+      opname = "LD  ";
+    } else {
+      switch (opcode_msb)
+      {
+      case 0x8:
+        opname = (opcode_lsb < 0x8 ? "ADD " : "ADC ");
+        break;
+      case 0x9:
+        opname = (opcode_lsb < 0x8 ? "SUB " : "SBC ");
+        break;
+      case 0xA:
+        opname = (opcode_lsb < 0x8 ? "AND " : "XOR ");
+        break;
+      case 0xB:
+        opname = (opcode_lsb < 0x8 ? "OR  " : "CP  ");
+        break;
+      }
     }
-  }
-  else {
+  } else {
+    // Set touched flags and regs
+    if (data0 < 0x80) {
+      touched.flags = true;
+    }
     switch (opcode_msb)
     {
     case 0x0:
@@ -399,7 +421,7 @@ inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
   }
   std::string secondary_reg;
   if (opcode_msb >= 0x8) {
-    secondary_reg = "    A";
+    secondary_reg = "   A";
   } else {
     switch (opcode_msb)
     {
@@ -480,7 +502,7 @@ inline std::string printInstr (Byte opcode, Byte data0, Byte data1)
   }
 }
 
-inline std::string printCycle (Byte opcode, Byte data0, Byte data1, State *state)
+inline std::string cycleStr (Byte opcode, Byte data0, Byte data1, State *state)
 {
   // Prepare instruction preamble (PC and instr bytes)
   int instr_len = instrLen(opcode);
@@ -488,10 +510,11 @@ inline std::string printCycle (Byte opcode, Byte data0, Byte data1, State *state
   switch (instr_len)
   {
   case 1:
-    preamble += "]      ";
+    preamble += "]          ";
     break;
   case 2:
-    preamble += "," + formatByte(data0) + "]   ";
+    preamble += "," + formatByte(data0) + "]     ";
+    break;
   case 3:
     preamble += "," + formatByte(data0) + "," + formatByte(data1) + "]";
   default:
@@ -499,45 +522,33 @@ inline std::string printCycle (Byte opcode, Byte data0, Byte data1, State *state
   }
   
   // Prepare instruction str
-  std::string instr;
-  bool touched_AF = false;
-  bool touched_BC = false;
-  bool touched_DE = false;
-  bool touched_HL = false;
-  bool touched_SP = false;
-  Short touched_mem = 0x0000; // 0 = no memory touched
-  switch (opcode)
-  {
-  case 0x00:
-    /* code */
-    break;
-  
-  default:
-    break;
-  }
+  Touched touched;
+  std::string instr = instrStr(opcode, data0, data1, touched);
 
   // Prepare instr appendix (affected state)
   std::string state_str = "";
-  if (state == nullptr) {
-    if (touched_AF) {
-      state_str += "AF=" + formatShort(REG_AF(state)) + " ";
-    }
-    if (touched_BC) {
-      state_str += "BC=" + formatShort(REG_BC(state)) + " ";
-    }
-    if (touched_DE) {
-      state_str += "DE=" + formatShort(REG_DE(state)) + " ";
-    }
-    if (touched_HL) {
-      state_str += "HL=" + formatShort(REG_HL(state)) + " ";
-    }
-    if (touched_SP) {
-      state_str += "SP=" + formatShort(state->SP) + " ";
-    }
-    if (touched_mem != 0x0000) {
-      state_str += "[" + regName(touched_mem) + "]=" + formatByte(state->memory[touched_mem]) + " ";
-    }
-  }
+  // TODO
+
+  // if (state != nullptr) {
+  //   if (touched.AF) {
+  //     state_str += "AF=" + formatShort(REG_AF(state)) + " ";
+  //   }
+  //   if (touched.BC) {
+  //     state_str += "BC=" + formatShort(REG_BC(state)) + " ";
+  //   }
+  //   if (touched.DE) {
+  //     state_str += "DE=" + formatShort(REG_DE(state)) + " ";
+  //   }
+  //   if (touched.HL) {
+  //     state_str += "HL=" + formatShort(REG_HL(state)) + " ";
+  //   }
+  //   if (touched.SP) {
+  //     state_str += "SP=" + formatShort(state->SP) + " ";
+  //   }
+  //   if (touched.memory != 0x0000) {
+  //     state_str += "[" + regName(touched.memory) + "]=" + formatByte(state->memory[touched.memory]) + " ";
+  //   }
+  // }
 
   return preamble + " " + instr + " " + state_str;
 }
