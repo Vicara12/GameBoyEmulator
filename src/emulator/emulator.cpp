@@ -4,10 +4,11 @@
 #include "emulator/interface.h"
 #include "emulator/cpu/cpu.h"
 #include "emulator/utils/initialization.h"
+#include "emulator/utils/debug.h"
 
 
 
-void emulator (Interface *interface, GameRom *game_rom)
+void emulator (Interface *interface, GameRom *game_rom, bool debug)
 {
   State *state = new State;
   // Boot sequence
@@ -16,5 +17,9 @@ void emulator (Interface *interface, GameRom *game_rom)
   execute(state, interface, /* breakpoint = */ 0x0100);
   replaceBootRom(state, game_rom);
   // Run game
-  execute(state, interface, /* no breakpoint */ 0xFFFF);
+  if (debug) {
+    runInDebug(state, interface);
+  } else {
+    execute(state, interface, /* no breakpoint */ 0xFFFF);
+  }
 }

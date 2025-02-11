@@ -32,7 +32,7 @@
 #define IE_REGISTER   0xFFFF // Interrupt Enable
 
 #define GET_TAC_CLOCK_SEL(value_TAC) (value_TAC & 0x03)
-#define GET_TAC_ENABLE(value_TAC) ((value_TAC & 0x4) != 0)
+#define GET_TAC_ENABLE(value_TAC)    ((value_TAC & 0x4) != 0)
 
 #define VBLANK_INTERRUPT  0x01
 #define LCD_INTERRUPT     0x02
@@ -40,7 +40,7 @@
 #define SERIAL_INTERRUPT  0x08
 #define JOYPAD_INTERRUPT  0x10
 
-#define IS_INTERRUPT_ENABLED(state, interrupt) ((state->memory[IE_REGISTER] & interrupt) != 0)
+#define SET_INTERRUPT(state, interrupt) (state->memory[IF_REGISTER] |= interrupt)
 
 // Flag setting utils
 #define ZERO_FLAG       0x80

@@ -17,4 +17,4 @@ void showRegisters (State *state, Interface *interface);
 
 void showMemoryRange (State *state, Short ini, Short fi, Interface *interface);
 
-State* runBootRomInDebug (Interface *interface, GameRom *game_rom);
+State* runInDebug (State *state, Interface *interface);

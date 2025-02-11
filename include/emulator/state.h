@@ -16,6 +16,7 @@ ulong getDivFromTAC (Byte value_TAC);
 
 typedef struct {
   float target_speed = 1.0;
+  bool debug = false;
   bool end_emulation = false;
 } EmulatorConfig;
 
@@ -35,7 +36,6 @@ typedef struct {
   bool halted = false;
   bool stopped = false;
   bool ime = false; // Interrupt Master Enable cpu flag
-  Byte buttons_pressed = 0; // The emulator should call the function that checks this frequently
   ulong cycles = 0; // Total execution cycles (execution clock)
   ulong cycles_last_DIV = 0;  // Counts the execution cycles of the last write to DIV
   ulong cycles_last_TIMA = 0; // Cycles of last TIMA overflow

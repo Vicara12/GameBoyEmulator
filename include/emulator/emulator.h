@@ -11,4 +11,4 @@
 
 
 // Run the emulator (boot + run)
-void emulator (Interface *interface, GameRom *game_rom = nullptr);
+void emulator (Interface *interface, GameRom *game_rom = nullptr, bool debug = false);

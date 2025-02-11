@@ -21,7 +21,7 @@ int main (int argc, char **argv)
   std::pair<Interface*,InterfaceData*> if_pair = getInterface();
   Interface *interface = if_pair.first;
   InterfaceData *if_data = if_pair.second;
-  std::thread emulation_thread(emulator, interface, &game_rom);
+  std::thread emulation_thread(emulator, interface, &game_rom, false);
   emulation_thread.detach();
   interfaceLoop(if_data, emulation_thread);
 }

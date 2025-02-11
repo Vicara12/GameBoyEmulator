@@ -41,18 +41,16 @@ void showMemoryRange (State *state, Short ini, Short fi, Interface *interface)
 }
 
 
-State* runBootRomInDebug (Interface *interface, GameRom *game_rom)
+State* runInDebug (State *state, Interface *interface)
 {
-  int user_input = 0;
-  State *state = new State;
-  loadBootRom(state);
-  loadGame(state, game_rom);
+  int user_input = 0x0100; // Entry point to the rom
 
-  while (user_input > -2) {
+  while (user_input > -3) {
     interface->print("\n");
     execute(state, interface, Short(user_input));
     showRegisters(state, interface);
-    interface->print("Enter nex breakpoint, -1 to show a mem address or -2 to show mem range or -3 to quit.");
+    interface->print("Enter next bp, -1 to show @ or -2 to show @ rang, -3 to toggle instr show [");
+    interface->print(state->config.debug + "] or -4 to quit.");
     do {
       interface->print("\n - Input: ");
       user_input = interface->userHexInt();
@@ -68,8 +66,10 @@ State* runBootRomInDebug (Interface *interface, GameRom *game_rom)
         interface->print(" - To:   ");
         Short addr_to = interface->userHexInt();
         showMemoryRange(state, addr_from, addr_to, interface);
+      } else if (user_input == -3) {
+        state->config.debug = not state->config.debug;
       }
-    } while (user_input < 0 and user_input > -3);
+    } while (user_input < 0 and user_input > -4);
   }
 
   return state;

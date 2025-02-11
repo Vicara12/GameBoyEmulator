@@ -34,31 +34,28 @@ inline void setInterrupts (Byte line_n, Byte mode, State *state)
   Byte stat_value = state->memory[STAT_REGISTER];
 
   // Handle STAT (LCD) interrupts
-  if (IS_INTERRUPT_ENABLED(state, LCD_INTERRUPT)) {
-    // Check if LYC == LY interrupt needs to be triggered
-    if (state->memory[LYC_REGISTER] == line_n) {
-      if ((stat_value & 0x40) != 0 and // LYC int select to 1
-          not state->screen.ly_lyc_flag_already_set
-          ) {
-        state->screen.ly_lyc_flag_already_set = true;
-        state->memory[IF_REGISTER] &= LCD_INTERRUPT;
-      }
-    } else {
-      state->screen.ly_lyc_flag_already_set = false;
+  // Check if LYC == LY interrupt needs to be triggered
+  if (state->memory[LYC_REGISTER] == line_n) {
+    if ((stat_value & 0x40) != 0 and // LYC int select to 1
+        not state->screen.ly_lyc_flag_already_set
+        ) {
+      state->screen.ly_lyc_flag_already_set = true;
+      SET_INTERRUPT(state, LCD_INTERRUPT);
     }
-    // Check if mode interrupt needs to be triggered
-    if ((mode != state->screen.last_mode) and 
-        ((mode == MODE0_HBLANK and (stat_value & 0x08) != 0) or
-         (mode == MODE1_VBLANK and (stat_value & 0x10) != 0) or
-         (mode == MODE2_OAMSC  and (stat_value & 0x20) != 0))) {
-      state->memory[IF_REGISTER] &= LCD_INTERRUPT;
-    }
+  } else {
+    state->screen.ly_lyc_flag_already_set = false;
+  }
+  // Check if mode interrupt needs to be triggered
+  if ((mode != state->screen.last_mode) and 
+      ((mode == MODE0_HBLANK and (stat_value & 0x08) != 0) or
+        (mode == MODE1_VBLANK and (stat_value & 0x10) != 0) or
+        (mode == MODE2_OAMSC  and (stat_value & 0x20) != 0))) {
+    SET_INTERRUPT(state, LCD_INTERRUPT);
   }
 
   // Handle VBLank interrupts
-  if (IS_INTERRUPT_ENABLED(state, VBLANK_INTERRUPT) and mode != state->screen.last_mode and
-      mode == MODE1_VBLANK) {
-    state->memory[IF_REGISTER] &= VBLANK_INTERRUPT;
+  if (mode != state->screen.last_mode and mode == MODE1_VBLANK) {
+    SET_INTERRUPT(state, VBLANK_INTERRUPT);
   }
 
   state->screen.last_mode = mode;

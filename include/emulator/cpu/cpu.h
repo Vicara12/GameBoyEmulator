@@ -13,7 +13,6 @@
 
 
 
-// Execute instructions. If execution flow is interrupted earlier, function returns automatically.
 void execute (State *state, Interface *interface, Short breakpoint = 0xFFFF);
 
 
@@ -27,9 +26,7 @@ inline void updateTimeRegisters (State *state)
     // Detect TIMA overflow
     if (old_TIMA > state->memory[TIMA_REGISTER]) {
       state->memory[TIMA_REGISTER] = state->memory[TMA_REGISTER];
-      if (IS_INTERRUPT_ENABLED(state, TIMER_INTERRUPT)) {
-        state->memory[IF_REGISTER] &= TIMER_INTERRUPT; // Set timer interrupt if enabled
-      }
+      SET_INTERRUPT(state, TIMER_INTERRUPT);
     }
   }
 }
@@ -37,31 +34,45 @@ inline void updateTimeRegisters (State *state)
 
 inline void updateButtons (ulong n_instrs, State *state, Interface *interface)
 {
-  if (n_instrs%INSTRS_PER_BUTTON_UPDATE == 0) {
-    Byte old_buttons_pressed = state->buttons_pressed;
-    state->buttons_pressed = interface->readButtons();
-    // If any change in button pressed activate interrupt
-    if (IS_INTERRUPT_ENABLED(state, JOYPAD_INTERRUPT) and
-        (old_buttons_pressed ^ state->buttons_pressed) != 0) {
-      state->memory[IF_REGISTER] &= JOYPAD_INTERRUPT;
-    }
+  Byte old_p1_reg = state->memory[P1_REGISTER];
+  Byte button_inputs = interface->readButtons();
+  Byte input = 0xF0;
+  // Low at bit 5 indicates A/B/Sel/Start read
+  if ((old_p1_reg & 0x20) == 0) {
+    input |= (button_inputs >> 4);
+  }
+  // Low at bit 4 indicates U/D/L/R read
+  if ((old_p1_reg & 0x10) == 0) {
+    input |= (button_inputs & 0x0F);
+  }
+  // Button pressed means LOW (0) and vice versa
+  state->memory[P1_REGISTER] = (old_p1_reg & 0x30) | (~input);
+
+  // If any change in button pressed activate interrupt and exit stop state (if in it)
+  if (((old_p1_reg ^ state->memory[P1_REGISTER]) & 0x0F) != 0) {
+    SET_INTERRUPT(state, JOYPAD_INTERRUPT);
+    state->stopped = false;
   }
 }
 
 
 inline void checkAndCallInterrupt (State *state)
 {
-  Byte if_reg = state->memory[IF_REGISTER];
-  // Check first if there is any interrupt
-  if (if_reg == 0) {
-    return;
+  Byte active_interrupts = (state->memory[IF_REGISTER] & state->memory[IE_REGISTER]);
+  if (state->halted and active_interrupts != 0) {
+    state->halted = false;
   }
+  
+  // Check first if there is any interrupt or if they are enabled by the interrupt master enable
+  if (active_interrupts == 0 or not state->ime) {
+    return;
+  };
 
   // Check interrupts one by one, if some interrupt is triggered return (don't check others)
   for (Byte i = 0; i < 5; i++) {
     Byte interrupt_flag = 1 << i;
     // If both IE and IF's corresponding bits are set to one
-    if (if_reg & interrupt_flag) {
+    if (active_interrupts & interrupt_flag) {
       state->ime = false;
       state->memory[IF_REGISTER] = state->memory[IF_REGISTER] & (~interrupt_flag); // clear interrupt bit
       // Push PC to stack
