@@ -86,18 +86,17 @@ inline PaletteColors colorsFromPalette(Byte palette, bool object)
 
 
 // Get the colors of a tile's line.
-// - addr: memory address of the tile in the tile map (0x9800 - 0x9BFF and 0x9C00 - 0x9FFF)
+// - tile_data_index: tile's data index
 // - tile_line: number of the tile's line (0 to 7, both inclusive)
 // - is_object: wether the tile corresponds to an object or BG/Window
 // - use_obp0: if is_object wether to use palette OBJ0 or OBJ1, ignored otherwise
 // - dst: memory address where the colors will be written, must be at least 8 bytes wide
 // - state: emulator's state struct
-inline void getTileLine (Short addr, Byte tile_line, bool is_object, bool use_obp0, Byte *dst, State *state)
+inline void getTileLine (Byte tile_data_index, Byte tile_line, bool is_object, bool use_obp0, Byte *dst, State *state)
 {
   Short tile_data_address;
   // Compute tile data address from Block 0 (0x8000 - 0x87FF) and Block 1 (0x8800 - 0x8FFF)
   if (is_object or LCDC_BG_W_TILE_DATA_AREA_LOW(state)) {
-    uint16_t tile_data_index = state->memory[addr];
     tile_data_address = 0x8000 + tile_data_index*16; // Each tile is 16 bytes
     // Modify addr if object tile in 8x16 mode
     if (is_object and LCDC_OBJ_SIZE_BIG(state)) {
@@ -110,8 +109,7 @@ inline void getTileLine (Short addr, Byte tile_line, bool is_object, bool use_ob
   }
   // Compute tile data address from Block 1 (0x8800 - 0x8FFF) and Block 2 (0x9000 - 0x97FF)
   else {
-    int16_t tile_data_index = int8_t(state->memory[addr]);
-    tile_data_address = 0x9000 + tile_data_index*16;
+    tile_data_address = 0x9000 + int16_t(int8_t(tile_data_index))*16;
   }
   // Retrieve tile data and get palette indices from it
   std::array<Byte,2> tile_data;
@@ -141,6 +139,59 @@ inline std::array<Byte, SCREEN_PX_W> renderLineOBJ (Byte line_n, State *state)
 {
   std::array<Byte, SCREEN_PX_W> line_obj;
   line_obj.fill(COLOR_TRANS);
+
+  if (not LCDC_OBJ_ENABLED(state)) {
+    return line_obj;
+  }
+
+  std::array<Short, 10> objs_in_line;
+  Byte obj_height = (LCDC_OBJ_SIZE_BIG(state) ? 16 : 8);
+  Byte n_objs = 0;
+
+  // Scan Object Attribute Memory object by object and if the object overlaps with the line store it
+  for (Short obj_addr = 0xFE00; obj_addr < 0xFEA0; obj_addr += 4) {
+    Byte obj_y = state->memory[obj_addr];
+    // line_n + 16 because obj_y has an offset of 16 and subtracting could cause underflow
+    if (obj_y <= (line_n + 16) and (obj_y + obj_height) > (line_n + 16)) {
+      objs_in_line[n_objs++] = obj_addr;
+      if (n_objs >= 10) {
+        break;
+      }
+    }
+  }
+
+  // Draw the selected objects into the line
+  // px_written holds 255 if no object has been written to the pixel and the x position of the
+  // leftmost object's pixel otherwise. Used to compute object's drawing priorities.
+  std::array<Byte, SCREEN_PX_W> px_written;
+  px_written.fill(255);
+  for (Byte i = 0; i < n_objs; i++) {
+    Byte obj_y = state->memory[objs_in_line[i]];
+    Byte obj_x = state->memory[objs_in_line[i] + 1];
+    Byte tile_data_index = state->memory[objs_in_line[i] + 2];
+    Byte obj_attrs = state->memory[objs_in_line[i] + 3];
+    std::array<Byte, 8> obj_line;
+    bool priority = ((obj_attrs & 0x80) != 0);
+    bool y_flip = ((obj_attrs & 0x40) != 0);
+    bool x_flip = ((obj_attrs & 0x20) != 0);
+    bool use_obp0 = ((obj_attrs & 0x10) == 0);
+    Byte tile_line = line_n + 16 - obj_y;
+    if (y_flip) {
+      tile_line = obj_height - tile_line - 1;
+    }
+    getTileLine(tile_data_index, tile_line, true, use_obp0, obj_line.data(), state);
+    // TODO: priority
+    for (Byte j = 0; j < 8; j++) {
+      Byte n_px = obj_x + j - 8;
+      // Check object is inside the viewport and there is no other higher priority object there
+      if ((obj_x + j) >= 8 and (obj_x + j) < 168 and obj_x < px_written[n_px]) {
+        line_obj[n_px] = (x_flip ? obj_line[7-j] : obj_line[j]);
+        if (line_obj[n_px] != COLOR_TRANS) {
+          px_written[n_px] = obj_x;
+        }
+      }
+    }
+  }
   return line_obj;
 }
 
@@ -164,7 +215,8 @@ inline std::array<Byte, SCREEN_PX_W> renderLineBGW (Byte line_n, State *state)
   Byte tile_line = bg_line_n%8; // Number of the line in the tile (0 to 7, both inclusive)
   Short addr_left_tile = base_addr_bg + tile_y*32; // Addr of the tile on the left
   for (Short i = 0; i < 32; i++) {
-    getTileLine(addr_left_tile + i, tile_line, false, false, &(bg_line[0]) + i*8, state);
+    Short tile_data_ind = state->memory[addr_left_tile + i];
+    getTileLine(tile_data_ind, tile_line, false, false, &(bg_line[0]) + i*8, state);
   }
 
   std::array<Byte, SCREEN_PX_W> bg_w_viewport_line;
@@ -193,6 +245,7 @@ inline float colorNumToFloat (Byte color)
     case COLOR_BLACK:
       return 0.00;
   }
+  return 0.00;
 }
 
 

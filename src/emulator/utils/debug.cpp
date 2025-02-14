@@ -2,23 +2,24 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <vector>
 #include "emulator/utils/initialization.h"
 #include "emulator/cpu/cpu.h"
 
 
-std::string formatByte (Byte b)
+std::string formatByte (Byte b, bool inc_0x)
 {
   std::stringstream ss;
   // Convert b to short because for some reason it does not like uint8_t (Byte)
-  ss << "0x" << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << Short(b);
+  ss << (inc_0x ? "0x" : "") << std::setfill('0') << std::setw(2) << std::hex << std::uppercase << Short(b);
   return ss.str();
 }
 
 
-std::string formatShort (Short s)
+std::string formatShort (Short s, bool inc_0x)
 {
   std::stringstream ss;
-  ss << "0x" << std::setfill('0') << std::setw(4) << std::hex << std::uppercase << s;
+  ss << (inc_0x ? "0x" : "") << std::setfill('0') << std::setw(4) << std::hex << std::uppercase << s;
   return ss.str();
 }
 
@@ -43,33 +44,106 @@ void showMemoryRange (State *state, Short ini, Short fi, Interface *interface)
 
 State* runInDebug (State *state, Interface *interface)
 {
-  int user_input = 0x0100; // Entry point to the rom
+  ExecutionDebug edb;
+  edb.breakpoint = 0xFFFF;
+  edb.exec_n = -1;
+  edb.rom_bp = {-1,-1,-1};
+  bool exit = false;
+  bool first = true;
+  auto formatRBP = [] (const ExecutionDebug &edb) -> std::string {
+    return (edb.rom_bp[0] == -1 ? "" : formatByte(edb.rom_bp[0])) +
+           (edb.rom_bp[1] == -1 ? "" : formatByte(edb.rom_bp[1])) +
+           (edb.rom_bp[2] == -1 ? "" : formatByte(edb.rom_bp[2]));
+  };
 
-  while (user_input > -3) {
+  while (not exit) {
     interface->print("\n");
-    execute(state, interface, Short(user_input));
-    showRegisters(state, interface);
-    interface->print("Enter next bp, -1 to show @ or -2 to show @ rang, -3 to toggle instr show [");
-    interface->print(state->config.debug + "] or -4 to quit.");
-    do {
-      interface->print("\n - Input: ");
-      user_input = interface->userHexInt();
-      if (user_input == -1) {
-        interface->print(" - Address: ");
-        Short addr = interface->userHexInt();
-        Byte res = state->memory[addr];
-        interface->print("[" + formatShort(addr) + "] = " + formatByte(res));
+    if (first) {
+      first = false;
+    } else {
+      execute(state, interface, edb);
+    }
+    edb.exec_n = -1;
+    bool run = false;
+    while (not run) {
+      interface->print("\n >>> ");
+      std::string user_input = interface->userLineInput();
+      std::stringstream ss(user_input);
+      std::string option;
+      std::vector<int> params;
+      ss >> option;
+      int data;
+      while (ss >> std::hex >> data) {
+        params.push_back(data);
       }
-      else if (user_input == -2) {
-        interface->print(" - From: ");
-        Short addr_from = interface->userHexInt();
-        interface->print(" - To:   ");
-        Short addr_to = interface->userHexInt();
-        showMemoryRange(state, addr_from, addr_to, interface);
-      } else if (user_input == -3) {
+      if (option == "r") {
+        run = true;
+        if (not params.empty()) {
+          edb.exec_n = params[0];
+        }
+      }
+      else if (option == "n") {
+        edb.exec_n = 1;
+        run = true;
+      }
+      else if (option == "b") {
+        edb.breakpoint = params[0];
+        interface->print("Set breakpoint at PC=" + formatShort(edb.breakpoint) + "\n");
+      }
+      else if (option == "m") {
+        interface->print("[" + formatShort(params[0]) + "] = " + formatByte(state->memory[params[0]]));
+      }
+      else if (option == "n") {
+        showMemoryRange(state, params[0], params[1], interface);
+      }
+      else if (option == "q") {
+        exit = true;
+        run = true;
+      }
+      else if (option == "t") {
         state->config.debug = not state->config.debug;
+        if (state->config.debug) {
+          interface->print("Print instructions ON\n");
+        } else {
+          interface->print("Print instructions OFF\n");
+        }
       }
-    } while (user_input < 0 and user_input > -4);
+      else if (option == "o") {
+        edb.rom_bp[0] = params[0];
+        if (params.size() > 1) {
+          edb.rom_bp[1] = params[1];
+        }
+        if (params.size() > 2) {
+          edb.rom_bp[2] = params[2];
+        }
+        interface->print("Set rom breakpoint for pattern " + formatRBP(edb) + "\n");
+      }
+      else if (option == "u") {
+        edb.rom_bp[0] = -1;
+        edb.rom_bp[1] = -1;
+        edb.rom_bp[2] = -1;
+        interface->print("Cleared rom pattern breakpoint\n");
+      }
+      else if (option == "i") {
+        showRegisters(state, interface);
+        interface->print("bp=" + formatShort(edb.breakpoint) + "  rbp=" + formatRBP(edb) + "\n");
+      }
+      else if (option == "h") {
+        interface->print("   - r [opt HEX]: continue execution (or execute HEX instructions)\n");
+        interface->print("   - n: execute one instruction\n");
+        interface->print("   - b HEX: set the breakpoint at PC=HEX\n");
+        interface->print("   - o HEX0 [opt HEX1] [opt HEX2]: set breakpoint when rom matches args\n");
+        interface->print("   - u: clear rom data breakpoint (o)\n");
+        interface->print("   - m HEX: show memory contents at HEX\n");
+        interface->print("   - n HEX0 HEX1: show memory contents from HEX0 to HEX1 (inc)\n");
+        interface->print("   - t: toggle instruction printing\n");
+        interface->print("   - i: show register and debug info\n");
+        interface->print("   - q: quit\n");
+      }
+      else {
+        interface->print("Unknown option (" + option + "), enter h for a list of commands\n");
+      }
+    }
   }
 
   return state;

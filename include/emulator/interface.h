@@ -29,8 +29,8 @@ typedef struct {
   // This function takes a string and prints it (either on console, serial, etc)
   std::function<void(std::string)> print = nullptr;
 
-  // This function should return a number introduced by the user (input is in HEX)
-  std::function<int()> userHexInt = nullptr;
+  // This function should return a line introduced by the user
+  std::function<std::string()> userLineInput = nullptr;
 
   // This function should pause the program for a given amount of milliseconds
   std::function<void(int)> sleepMillis = nullptr;

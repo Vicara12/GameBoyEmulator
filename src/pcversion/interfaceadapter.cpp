@@ -11,7 +11,7 @@ std::pair<Interface*,InterfaceData*> getInterface ()
 
   interface->readButtons = [if_data] () {return if_data->buttons;};
   interface->print = [](std::string data) {std::cout << data;};
-  interface->userHexInt = []() {int n; std::cin >> std::hex >> n; return n;};
+  interface->userLineInput = []() {std::string line; std::getline(std::cin, line); return line;};
   interface->sleepMillis = [] (int ms) {std::this_thread::sleep_for(std::chrono::milliseconds(ms));};
   interface->realTimeMicros = [if_data] () {return timeMicros(if_data);};
   interface->updateScreen = [if_data] (ScreenFrame *sf) {updateScreen(if_data, sf);};

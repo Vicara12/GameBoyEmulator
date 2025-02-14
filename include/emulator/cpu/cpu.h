@@ -12,8 +12,14 @@
 #define INSTRS_PER_BUTTON_UPDATE 64 // Each X instructions the new buttons pressed check is run
 
 
+typedef struct {
+  Short breakpoint = 0xFFFF;
+  int exec_n = -1;
+  std::array<int, 3> rom_bp = {-1,-1,-1};
+} ExecutionDebug;
 
-void execute (State *state, Interface *interface, Short breakpoint = 0xFFFF);
+
+void execute (State *state, Interface *interface, const ExecutionDebug &db = ExecutionDebug());
 
 
 inline void updateTimeRegisters (State *state)

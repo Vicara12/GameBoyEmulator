@@ -5,17 +5,16 @@
 
 
 
-void execute (State *state, Interface *interface, Short breakpoint)
+void execute (State *state, Interface *interface, const ExecutionDebug &db)
 {
   ulong n_instrs = 0;
+  Byte opcode = 0x00, data0 = 0x00, data1 = 0x00;
 
-  while (not state->stopped and
-         state->PC != breakpoint and
-         not state->config.end_emulation) {
+  while (not state->config.end_emulation and n_instrs != db.exec_n) {
     if (not state->halted) {
-      Byte opcode = state->memory[state->PC];
-      Byte data0 = state->memory[(state->PC+1)&0xFFFF];
-      Byte data1 = state->memory[(state->PC+2)&0xFFFF];
+      opcode = state->memory[state->PC];
+      data0 = state->memory[(state->PC+1)&0xFFFF];
+      data1 = state->memory[(state->PC+2)&0xFFFF];
       if (state->config.debug) {
         interface->print(cycleStr(opcode, data0, data1, state) + "\n");
       }
@@ -37,5 +36,12 @@ void execute (State *state, Interface *interface, Short breakpoint)
     state->config.end_emulation = interface->endEmulation();
     synchExecution(state, interface);
     n_instrs++;
+
+    if (state->PC == db.breakpoint or
+        ((state->memory[state->PC] == db.rom_bp[0]) and
+         (state->memory[(state->PC+1)&0xFFFF] == db.rom_bp[1] or db.rom_bp[1] == -1) and
+         (state->memory[(state->PC+2)&0xFFFF] == db.rom_bp[2] or db.rom_bp[2] == -1))) {
+      break;
+    }
   }
 }

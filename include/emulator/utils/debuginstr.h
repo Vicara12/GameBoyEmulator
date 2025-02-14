@@ -5,6 +5,7 @@
 #pragma once
 
 #include <string>
+#include <sstream>
 #include "emulator/types.h"
 #include "emulator/utils/debug.h"
 
@@ -74,7 +75,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
     return "NOP " + two_reg_space;
   case 0x01:
     touched.BC = true;
-    return "LD  BC," + formatShort(JOIN_REGS(data1, data0));
+    return "LD    BC," + formatShort(JOIN_REGS(data1, data0));
   case 0x02:
     touched.AF = true;
     touched.BC = true;
@@ -90,11 +91,11 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
     return "DEC    B     ";
   case 0x06:
     touched.BC = true;
-    return "LD     B," + formatByte(data0);
+    return "LD     B,  " + formatByte(data0);
   case 0x07:
     return "RLCA         ";
   case 0x08:
-    return "LD  " + formatShort(JOIN_REGS(data1, data0)) + ",SP";
+    return "LD  " + formatShort(JOIN_REGS(data1, data0)) + ",  SP";
   case 0x09:
     return "ADD   HL,  BC";
   case 0x0A:
@@ -106,13 +107,13 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0x0D:
     return "DEC    C     ";
   case 0x0E:
-    return "LD     C," + formatByte(data0);
+    return "LD     C,  " + formatByte(data0);
   case 0x0F:
     return "RRCA         ";
   case 0x10:
     return "STOP" + two_reg_space;
   case 0x11:
-    return "LD  DE," + formatShort(JOIN_REGS(data1, data0));
+    return "LD    DE," + formatShort(JOIN_REGS(data1, data0));
   case 0x12:
     return "LD  (DE),   A";
   case 0x13:
@@ -122,11 +123,11 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0x15:
     return "DEC    D     ";
   case 0x16:
-    return "LD     D," + formatByte(data0);
+    return "LD     D,  " + formatByte(data0);
   case 0x17:
     return "RLA          ";
   case 0x18:
-    return "JR  " + std::to_string(int8_t(data0)) + " " + reg_space;
+    return "JR    " + std::to_string(int8_t(data0)) + " " + reg_space;
   case 0x19:
     return "ADD   HL,  DE";
   case 0x1A:
@@ -138,13 +139,13 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0x1D:
     return "DEC    E     ";
   case 0x1E:
-    return "LD     E," + formatByte(data0);
+    return "LD     E,  " + formatByte(data0);
   case 0x1F:
     return "RRA          ";
   case 0x20:
     return "JR    NZ," + std::to_string(int8_t(data0));
   case 0x21:
-    return "LD  HL," + formatShort(JOIN_REGS(data1, data0));
+    return "LD    HL," + formatShort(JOIN_REGS(data1, data0));
   case 0x22:
     return "LD  (HL+),  A";
   case 0x23:
@@ -154,7 +155,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0x25:
     return "DEC    H     ";
   case 0x26:
-    return "LD     H," + formatByte(data0);
+    return "LD     H,  " + formatByte(data0);
   case 0x27:
     return "DAA " + two_reg_space;
   case 0x28:
@@ -170,13 +171,13 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0x2D:
     return "DEC    L     ";
   case 0x2E:
-    return "LD     L," + formatByte(data0);
+    return "LD     L,  " + formatByte(data0);
   case 0x2F:
     return "CPL " + two_reg_space;
   case 0x30:
     return "JR    NC," + std::to_string(int8_t(data0));
   case 0x31:
-    return "LD  SP," + formatShort(JOIN_REGS(data1, data0));
+    return "LD    SP," + formatShort(JOIN_REGS(data1, data0));
   case 0x32:
     return "LD  (HL-),  A";
   case 0x33:
@@ -186,7 +187,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0x35:
     return "DEC (HL)     ";
   case 0x36:
-    return "LD  (HL)," + formatByte(data0);
+    return "LD  (HL),  " + formatByte(data0);
   case 0x37:
     return "SCF " + two_reg_space;
   case 0x38:
@@ -202,7 +203,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0x3D:
     return "DEC    A     ";
   case 0x3E:
-    return "LD     A," + formatByte(data0);
+    return "LD     A,  " + formatByte(data0);
   case 0x3F:
     return "CCF " + two_reg_space;
   // Special case: HALT
@@ -214,15 +215,15 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0xC1:
     return "POP   BC " + reg_space;
   case 0xC2:
-    return "JP  NZ," + formatShort(JOIN_REGS(data1, data0));
+    return "JP    NZ," + formatShort(JOIN_REGS(data1, data0));
   case 0xC3:
-    return "JP  " + formatShort(JOIN_REGS(data1, data0)) + "   ";
+    return "JP    " + formatShort(JOIN_REGS(data1, data0)) + "   ";
   case 0xC4:
-    return "CALL NZ," + formatShort(JOIN_REGS(data1, data0));
+    return "CALL  NZ," + formatShort(JOIN_REGS(data1, data0));
   case 0xC5:
     return "PUSH  BC " + reg_space;
   case 0xC6:
-    return "ADD    A," + formatByte(data0);
+    return "ADD    A,  " + formatByte(data0);
   case 0xC7:
     return "RST 0x00 " + reg_space;
   case 0xC8:
@@ -230,13 +231,13 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0xC9:
     return "RET      " + reg_space;
   case 0xCA:
-    return "JP   Z," + formatShort(JOIN_REGS(data1, data0));
+    return "JP     Z," + formatShort(JOIN_REGS(data1, data0));
   case 0xCC:
-    return "CALL Z," + formatShort(JOIN_REGS(data1, data0));
+    return "CALL   Z," + formatShort(JOIN_REGS(data1, data0));
   case 0xCD:
-    return "CALL   " + formatShort(JOIN_REGS(data1, data0));
+    return "CALL  " + formatShort(JOIN_REGS(data1, data0)) + "   ";
   case 0xCE:
-    return "ADC    A," + formatByte(data0);
+    return "ADC    A,  " + formatByte(data0);
   case 0xCF:
     return "RST 0x08 " + reg_space;
   case 0xD0:
@@ -244,7 +245,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0xD1:
     return "POP   DE " + reg_space;
   case 0xD2:
-    return "JP  NC," + formatShort(JOIN_REGS(data1, data0));
+    return "JP    NC," + formatShort(JOIN_REGS(data1, data0));
   case 0xD3:
     return "ILLEGAL  " + reg_space;
   case 0xD4:
@@ -252,7 +253,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0xD5:
     return "PUSH  DE " + reg_space;
   case 0xD6:
-    return "SUB " + formatByte(data0) + "," + reg_space;
+    return "SUB   " + formatByte(data0) + "," + reg_space;
   case 0xD7:
     return "RST 0x10 " + reg_space;
   case 0xD8:
@@ -260,19 +261,19 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0xD9:
     return "RETI     " + reg_space;
   case 0xDA:
-    return "JP   C," + formatShort(JOIN_REGS(data1, data0));
+    return "JP     C," + formatShort(JOIN_REGS(data1, data0));
   case 0xDB:
     return "ILLEGAL  " + reg_space;
   case 0xDC:
-    return "CALL C," + formatShort(JOIN_REGS(data1, data0));
+    return "CALL   C," + formatShort(JOIN_REGS(data1, data0));
   case 0xDD:
     return "ILLEGAL  " + reg_space;
   case 0xDE:
-    return "SBC    A," + formatByte(data0);
+    return "SBC    A,  " + formatByte(data0);
   case 0xDF:
     return "RST 0x18 " + reg_space;
   case 0xE0:
-    return "LDH (0xFF00+" + formatByte(data0) + "), A";
+    return "LDH (FF00+" + formatByte(data0) + "), A";
   case 0xE1:
     return "POP   HL " + reg_space;
   case 0xE2:
@@ -284,7 +285,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0xE5:
     return "PUSH  HL " + reg_space;
   case 0xE6:
-    return "AND " + formatByte(data0) + "," + reg_space;
+    return "AND   " + formatByte(data0) + "," + reg_space;
   case 0xE7:
     return "RST 0x20 " + reg_space;
   case 0xE8:
@@ -292,7 +293,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0xE9:
     return "JP  (HL) " + reg_space;
   case 0xEA:
-    return "LD (" + formatShort(JOIN_REGS(data1, data0)) + "),A";
+    return "LD (" + formatShort(JOIN_REGS(data1, data0)) + "),  A";
   case 0xEB:
     return "ILLEGAL  " + reg_space;
   case 0xEC:
@@ -300,11 +301,11 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0xED:
     return "ILLEGAL  " + reg_space;
   case 0xEE:
-    return "XOR " + formatByte(data0) + " " + reg_space;
+    return "XOR   " + formatByte(data0) + " " + reg_space;
   case 0xEF:
     return "RST 0x28 " + reg_space;
   case 0xF0:
-    return "LDH  A,(0xFF00+" + formatByte(data0) + ")";
+    return "LDH  A,(FF00+" + formatByte(data0) + ")";
   case 0xF1:
     return "POP   AF " + reg_space;
   case 0xF2:
@@ -316,7 +317,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0xF5:
     return "PUSH  AF " + reg_space;
   case 0xF6:
-    return "OR  " + formatByte(data0) + "," + reg_space;
+    return "OR    " + formatByte(data0) + "," + reg_space;
   case 0xF7:
     return "RST 0x30 " + reg_space;
   case 0xF8:
@@ -324,7 +325,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0xF9:
     return "LD    SP,  HL";
   case 0xFA:
-    return "LD A,(" + formatShort(JOIN_REGS(data1, data0)) + ")";
+    return "LD   A,(" + formatShort(JOIN_REGS(data1, data0)) + ")";
   case 0xFB:
     return "EI  " + two_reg_space;
   case 0xFC:
@@ -332,7 +333,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0xFD:
     return "ILLEGAL  " + reg_space;
   case 0xFE:
-    return "CP  " + formatByte(data0) + " " + reg_space;
+    return "CP    " + formatByte(data0) + " " + reg_space;
   case 0xFF:
     return "RST 0x38 " + reg_space;
   default:
@@ -510,10 +511,10 @@ inline std::string cycleStr (Byte opcode, Byte data0, Byte data1, State *state)
   switch (instr_len)
   {
   case 1:
-    preamble += "]          ";
+    preamble += "]      ";
     break;
   case 2:
-    preamble += "," + formatByte(data0) + "]     ";
+    preamble += "," + formatByte(data0) + "]   ";
     break;
   case 3:
     preamble += "," + formatByte(data0) + "," + formatByte(data1) + "]";
@@ -526,29 +527,13 @@ inline std::string cycleStr (Byte opcode, Byte data0, Byte data1, State *state)
   std::string instr = instrStr(opcode, data0, data1, touched);
 
   // Prepare instr appendix (affected state)
-  std::string state_str = "";
-  // TODO
+  std::stringstream state_ss;
+  state_ss << " | " <<  "AF:" << formatShort(REG_AF(state))
+                  << " BC:" << formatShort(REG_BC(state))
+                  << " DE:" << formatShort(REG_DE(state))
+                  << " HL:" << formatShort(REG_HL(state))
+                  << " SP:" << formatShort(state->SP)
+                  << " IME" << (state->ime ? "1" : "0");
 
-  // if (state != nullptr) {
-  //   if (touched.AF) {
-  //     state_str += "AF=" + formatShort(REG_AF(state)) + " ";
-  //   }
-  //   if (touched.BC) {
-  //     state_str += "BC=" + formatShort(REG_BC(state)) + " ";
-  //   }
-  //   if (touched.DE) {
-  //     state_str += "DE=" + formatShort(REG_DE(state)) + " ";
-  //   }
-  //   if (touched.HL) {
-  //     state_str += "HL=" + formatShort(REG_HL(state)) + " ";
-  //   }
-  //   if (touched.SP) {
-  //     state_str += "SP=" + formatShort(state->SP) + " ";
-  //   }
-  //   if (touched.memory != 0x0000) {
-  //     state_str += "[" + regName(touched.memory) + "]=" + formatByte(state->memory[touched.memory]) + " ";
-  //   }
-  // }
-
-  return preamble + " " + instr + " " + state_str;
+  return preamble + " " + instr + " " + state_ss.str();
 }

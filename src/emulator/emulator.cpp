@@ -11,15 +11,17 @@
 void emulator (Interface *interface, GameRom *game_rom, bool debug)
 {
   State *state = new State;
+  ExecutionDebug edb;
+  edb.breakpoint = 0x0100; // Set breakpoint at the end of boot rom
   // Boot sequence
   loadBootRom(state);
   loadGame(state, game_rom);
-  execute(state, interface, /* breakpoint = */ 0x0100);
+  execute(state, interface, edb);
   replaceBootRom(state, game_rom);
   // Run game
   if (debug) {
     runInDebug(state, interface);
   } else {
-    execute(state, interface, /* no breakpoint */ 0xFFFF);
+    execute(state, interface);
   }
 }
