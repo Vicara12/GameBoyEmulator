@@ -1087,8 +1087,11 @@ inline int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state
     return instr_RST_n(0x28, state);
   case 0xF0:
     return instr_LD_A_FF00_n(state, data0, true);
-  case 0xF1:
-    return instr_POP_nn(state->A, state->F, state);
+  case 0xF1: {
+    int duration = instr_POP_nn(state->A, state->F, state);
+    state->F &= 0xF0;
+    return duration;
+  }
   case 0xF2:
     return instr_LD_A_FF00_n(state, state->C, false);
   case 0xF3:

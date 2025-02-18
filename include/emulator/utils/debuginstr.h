@@ -20,6 +20,19 @@ typedef struct {
   Short memory = 0x0000; // 0 = no memory touched
 } Touched;
 
+
+inline std::string formatInt (int n)
+{
+  if (n >= 0 and n < 10) {
+    return "   " + std::to_string(n);
+  }
+  else if (n > -10 and n < 100) {
+    return "  " +  std::to_string(n);
+  }
+  return " " + std::to_string(n);
+}
+
+
 inline std::string regName (Short addr)
 {
   switch (addr)
@@ -62,6 +75,7 @@ inline std::string regName (Short addr)
       return formatShort(addr);
   }
 }
+
 
 inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touched)
 {
@@ -127,7 +141,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0x17:
     return "RLA          ";
   case 0x18:
-    return "JR    " + std::to_string(int8_t(data0)) + " " + reg_space;
+    return "JR  " + formatInt(int8_t(data0)) + " " + reg_space;
   case 0x19:
     return "ADD   HL,  DE";
   case 0x1A:
@@ -143,7 +157,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0x1F:
     return "RRA          ";
   case 0x20:
-    return "JR    NZ," + std::to_string(int8_t(data0));
+    return "JR    NZ," + formatInt(int8_t(data0));
   case 0x21:
     return "LD    HL," + formatShort(JOIN_REGS(data1, data0));
   case 0x22:
@@ -159,7 +173,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0x27:
     return "DAA " + two_reg_space;
   case 0x28:
-    return "JR     Z," + std::to_string(int8_t(data0));
+    return "JR     Z," + formatInt(int8_t(data0));
   case 0x29:
     return "ADD   HL,  HL";
   case 0x2A:
@@ -175,7 +189,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0x2F:
     return "CPL " + two_reg_space;
   case 0x30:
-    return "JR    NC," + std::to_string(int8_t(data0));
+    return "JR    NC," + formatInt(int8_t(data0));
   case 0x31:
     return "LD    SP," + formatShort(JOIN_REGS(data1, data0));
   case 0x32:
@@ -191,7 +205,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0x37:
     return "SCF " + two_reg_space;
   case 0x38:
-    return "JR     C," + std::to_string(int8_t(data0));
+    return "JR     C," + formatInt(int8_t(data0));
   case 0x39:
     return "ADD   HL,  SP";
   case 0x3A:
@@ -289,7 +303,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0xE7:
     return "RST 0x20 " + reg_space;
   case 0xE8:
-    return "ADD   SP," + std::to_string(int8_t(data0));
+    return "ADD   SP," + formatInt(int8_t(data0));
   case 0xE9:
     return "JP  (HL) " + reg_space;
   case 0xEA:
@@ -321,7 +335,7 @@ inline std::string instrStr (Byte opcode, Byte data0, Byte data1, Touched &touch
   case 0xF7:
     return "RST 0x30 " + reg_space;
   case 0xF8:
-    return "LD HL,SP+" + std::to_string(int8_t(data0));
+    return "LD HL,SP+" + formatInt(int8_t(data0));
   case 0xF9:
     return "LD    SP,  HL";
   case 0xFA:
