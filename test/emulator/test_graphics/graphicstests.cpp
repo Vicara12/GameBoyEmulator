@@ -1,8 +1,8 @@
 #include "graphicstests.h"
 #include <unity.h>
-#include "emulator/multimedia/graphics.h"
-#include "emulator/types.h"
-#include "emulator/state.h"
+#include "multimedia/graphics.h"
+#include "types.h"
+#include "state.h"
 
 
 void testGetMode ()

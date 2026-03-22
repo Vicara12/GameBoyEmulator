@@ -1,7 +1,7 @@
 #include <unity.h>
 #include "bitarithmetic.h"
-#include "emulator/state.h"
-#include "emulator/instructions/instruction.h"
+#include "state.h"
+#include "instructions/instruction.h"
 
 void runAllBitArithmeticInstrTests ()
 {
