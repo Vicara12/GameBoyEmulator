@@ -12,19 +12,17 @@ inline int instr_DAA (State *state)
   bool hc_flag = GET_HALF_CARRY_FLAG(state);
   bool c_flag = GET_CARRY_FLAG(state);
   bool sub_flag = GET_SUBTRACT_FLAG(state);
-  Byte offset = 0x00;
-  offset |= 0x06*(((not sub_flag) and ((state->A & 0x0F) > 0x09)) or hc_flag);
-  offset |= 0x60*(((not sub_flag) and (state->A > 0x99)) or c_flag);
   RESET_ZERO_FLAG(state);
   RESET_HALF_CARRY_FLAG(state);
   if (sub_flag) {
-    COND_SET_CARRY_FLAG(state, (Short(state->A) - offset) > 0xFF);
-    state->A -= offset;
+    state->A -=  c_flag*0x60;
+    state->A -= hc_flag*0x06;
   } else {
-    COND_SET_CARRY_FLAG(state, (Short(state->A) + offset) > 0xFF);
-    state->A += offset;
+    COND_SET_CARRY_FLAG(state, state->A > 0x99);
+    state->A += ( c_flag or ( state->A         > 0x99))*0x60;
+    state->A += (hc_flag or ((state->A & 0x0F) > 0x09))*0x06;
   }
-  COND_SET_CARRY_FLAG(state, state->A == 0);
+  COND_SET_ZERO_FLAG(state, state->A == 0);
   return 4;
 }
 
