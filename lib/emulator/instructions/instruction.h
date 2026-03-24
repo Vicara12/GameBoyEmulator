@@ -85,69 +85,69 @@ inline int executeCBInstruction (Byte opcode, State *state)
   switch (opcode)
   {
   case 0x00:
-    return instr_RLC_n(state->B, state);
+    return instr_RLC_n(state->B, state, true);
   case 0x01:
-    return instr_RLC_n(state->C, state);
+    return instr_RLC_n(state->C, state, true);
   case 0x02:
-    return instr_RLC_n(state->D, state);
+    return instr_RLC_n(state->D, state, true);
   case 0x03:
-    return instr_RLC_n(state->E, state);
+    return instr_RLC_n(state->E, state, true);
   case 0x04:
-    return instr_RLC_n(state->H, state);
+    return instr_RLC_n(state->H, state, true);
   case 0x05:
-    return instr_RLC_n(state->L, state);
+    return instr_RLC_n(state->L, state, true);
   case 0x06:
     return instr_RLC_mem_HL(state);
   case 0x07:
-    return instr_RLC_n(state->A, state);
+    return instr_RLC_n(state->A, state, true);
   case 0x08:
-    return instr_RRC_n(state->B, state);
+    return instr_RRC_n(state->B, state, true);
   case 0x09:
-    return instr_RRC_n(state->C, state);
+    return instr_RRC_n(state->C, state, true);
   case 0x0A:
-    return instr_RRC_n(state->D, state);
+    return instr_RRC_n(state->D, state, true);
   case 0x0B:
-    return instr_RRC_n(state->E, state);
+    return instr_RRC_n(state->E, state, true);
   case 0x0C:
-    return instr_RRC_n(state->H, state);
+    return instr_RRC_n(state->H, state, true);
   case 0x0D:
-    return instr_RRC_n(state->L, state);
+    return instr_RRC_n(state->L, state, true);
   case 0x0E:
     return instr_RRC_mem_HL(state);
   case 0x0F:
-    return instr_RRC_n(state->A, state);
+    return instr_RRC_n(state->A, state, true);
   case 0x10:
-    return instr_RL_n(state->B, state);
+    return instr_RL_n(state->B, state, true);
   case 0x11:
-    return instr_RL_n(state->C, state);
+    return instr_RL_n(state->C, state, true);
   case 0x12:
-    return instr_RL_n(state->D, state);
+    return instr_RL_n(state->D, state, true);
   case 0x13:
-    return instr_RL_n(state->E, state);
+    return instr_RL_n(state->E, state, true);
   case 0x14:
-    return instr_RL_n(state->H, state);
+    return instr_RL_n(state->H, state, true);
   case 0x15:
-    return instr_RL_n(state->L, state);
+    return instr_RL_n(state->L, state, true);
   case 0x16:
     return instr_RL_mem_HL(state);
   case 0x17:
-    return instr_RL_n(state->A, state);
+    return instr_RL_n(state->A, state, true);
   case 0x18:
-    return instr_RR_n(state->B, state);
+    return instr_RR_n(state->B, state, true);
   case 0x19:
-    return instr_RR_n(state->C, state);
+    return instr_RR_n(state->C, state, true);
   case 0x1A:
-    return instr_RR_n(state->D, state);
+    return instr_RR_n(state->D, state, true);
   case 0x1B:
-    return instr_RR_n(state->E, state);
+    return instr_RR_n(state->E, state, true);
   case 0x1C:
-    return instr_RR_n(state->H, state);
+    return instr_RR_n(state->H, state, true);
   case 0x1D:
-    return instr_RR_n(state->L, state);
+    return instr_RR_n(state->L, state, true);
   case 0x1E:
     return instr_RR_mem_HL(state);
   case 0x1F:
-    return instr_RR_n(state->A, state);
+    return instr_RR_n(state->A, state, true);
   case 0x20:
     return instr_SLA_n(state->B, state);
   case 0x21:
@@ -620,7 +620,7 @@ inline int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state
   case 0x06:
     return instr_LD_nn_n(state->B, data0);
   case 0x07:
-    return instr_RLC_A(state);
+    return instr_RLC_n(state->A, state, false);
   case 0x08:
     return instr_LD_mem_nn_SP(JOIN_REGS(data1, data0), state);
   case 0x09:
@@ -636,7 +636,7 @@ inline int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state
   case 0x0E:
     return instr_LD_nn_n(state->C, data0);
   case 0x0F:
-    return instr_RRC_A(state);
+    return instr_RRC_n(state->A, state, false);
   case 0x10:
     return instr_STOP(state);
   case 0x11:
@@ -652,7 +652,7 @@ inline int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state
   case 0x16:
     return instr_LD_nn_n(state->D, data0);
   case 0x17:
-    return instr_RL_A(state);
+    return instr_RL_n(state->A, state, false);
   case 0x18:
     return instr_JR_n(data0, state);
   case 0x19:
@@ -668,7 +668,7 @@ inline int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state
   case 0x1E:
     return instr_LD_nn_n(state->E, data0);
   case 0x1F:
-    return instr_RR_A(state);
+    return instr_RR_n(state->A, state, false);
   case 0x20:
     return instr_JR_cc_n(data0, ZERO_FLAG, false, state);
   case 0x21:
@@ -704,7 +704,7 @@ inline int executeInstruction (Byte opcode, Byte data0, Byte data1, State *state
   case 0x30:
     return instr_JR_cc_n(data0, CARRY_FLAG, false, state);
   case 0x31:
-    return instr_LD_SP_nn(state, JOIN_REGS(data1, data0));
+    return instr_LD_SP_nn(state, JOIN_REGS(data1, data0)) + 4;
   case 0x32:
     return instr_LDX_A_mem_HL(state, true, false);
   case 0x33:

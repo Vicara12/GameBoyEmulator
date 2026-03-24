@@ -51,109 +51,98 @@ inline int instr_CCF_SCF (State *state, bool complement)
 }
 
 // RLC n: rotate n left, old bit 7 to carry flag
-inline int instr_RLC_n (Reg &n, State *state)
+inline int instr_RLC_n (Reg &n, State *state, bool cb_prefix)
 {
   CLEAR_ALL_FLAGS(state);
-  COND_SET_CARRY_FLAG(state, (n & 0x80) != 0);
-  n = n << 1;
-  COND_SET_ZERO_FLAG(state, n == 0);
-  return 8;
+  Byte high_bit = (n & 0x80) != 0;
+  COND_SET_CARRY_FLAG(state, high_bit);
+  n = (n << 1) | high_bit ;
+  // For some reason the CB and non-CB version with reg A work differently
+  if (cb_prefix) {
+    COND_SET_ZERO_FLAG(state, n == 0);
+    return 8;
+  }
+  return 4;
 }
 
 // RLC (HL)
 inline int instr_RLC_mem_HL (State *state)
 {
   DReg HL = REG_HL(state);
-  instr_RLC_n(state->memory[HL], state);
+  instr_RLC_n(state->memory[HL], state, true);
   writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
 }
 
-// RLC A (only opcode 0x07, not 0xCB 07 version)
-inline int instr_RLC_A (State *state)
-{
-  instr_RLC_n(state->A, state);
-  return 4;
-}
-
 // RL n: rotate left through carry flag
-inline int instr_RL_n (Reg &n, State *state)
+inline int instr_RL_n (Reg &n, State *state, bool cb_prefix)
 {
   Byte old_carry = GET_CARRY_FLAG(state);
   CLEAR_ALL_FLAGS(state);
   COND_SET_CARRY_FLAG(state, (n & 0x80) != 0);
   n = (n << 1) | old_carry;
-  COND_SET_ZERO_FLAG(state, n == 0);
-  return 8;
+  // For some reason the CB and non-CB version with reg A work differently
+  if (cb_prefix) {
+    COND_SET_ZERO_FLAG(state, n == 0);
+    return 8;
+  }
+  return 4;
 }
 
 // RL (HL)
 inline int instr_RL_mem_HL (State *state)
 {
   DReg HL = REG_HL(state);
-  instr_RL_n(state->memory[HL], state);
+  instr_RL_n(state->memory[HL], state, true);
   writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
 }
 
-// RL A: rotate left through carry flag (only opcode 0x17, not 0xCB 17 version)
-inline int instr_RL_A (State *state)
-{
-  instr_RL_n(state->A, state);
-  return 4;
-}
-
 // RRC n: rotate n right, old bit 0 to carry flag
-inline int instr_RRC_n (Reg &n, State *state)
+inline int instr_RRC_n (Reg &n, State *state, bool cb_prefix)
 {
   CLEAR_ALL_FLAGS(state);
-  COND_SET_CARRY_FLAG(state, (n & 0x01) != 0);
-  n = n >> 1;
-  COND_SET_ZERO_FLAG(state, n == 0);
-  return 8;
+  Byte low_bit = (n & 0x01) != 0;
+  COND_SET_CARRY_FLAG(state, low_bit);
+  n = (n >> 1) | (low_bit << 7);
+  // For some reason the CB and non-CB version with reg A work differently
+  if (cb_prefix) {
+    COND_SET_ZERO_FLAG(state, n == 0);
+    return 8;
+  }
+  return 4;
 }
 
 // RRC (HL)
 inline int instr_RRC_mem_HL (State *state)
 {
   DReg HL = REG_HL(state);
-  instr_RRC_n(state->memory[HL], state);
+  instr_RRC_n(state->memory[HL], state, true);
   writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
 }
 
-// RRC A (only opcode 0x0F, not 0xCB 0F version)
-inline int instr_RRC_A (State *state)
-{
-  instr_RRC_n(state->A, state);
-  return 4;
-}
-
 // RR n: rotate right through carry flag
-inline int instr_RR_n (Reg &n, State *state)
+inline int instr_RR_n (Reg &n, State *state, bool cb_prefix)
 {
   Byte old_carry = GET_CARRY_FLAG(state);
   CLEAR_ALL_FLAGS(state);
   COND_SET_CARRY_FLAG(state, (n & 0x01) != 0);
   n = (n >> 1) | (old_carry*0x80);
-  COND_SET_ZERO_FLAG(state, n == 0);
-  return 8;
+  if (cb_prefix) {
+    COND_SET_ZERO_FLAG(state, n == 0);
+    return 8;
+  }
+  return 4;
 }
 
 // RR (HL)
 inline int instr_RR_mem_HL (State *state)
 {
   DReg HL = REG_HL(state);
-  instr_RR_n(state->memory[HL], state);
+  instr_RR_n(state->memory[HL], state, true);
   writeMem(HL, state->memory[HL], state); // this is done to use the special write function
   return 16;
-}
-
-// RR A: rotate right through carry flag (only opcode 0x1F, not 0xCB 1F version)
-inline int instr_RR_A (State *state)
-{
-  instr_RL_n(state->A, state);
-  return 4;
 }
 
 // SLA n: shift left arithmetical into carry
@@ -221,7 +210,7 @@ inline int instr_BIT_b_r (Reg &reg, State *state)
   RESET_SUBTRACT_FLAG(state);
   SET_HALF_CARRY_FLAG(state);
   RESET_ZERO_FLAG(state);
-  COND_SET_ZERO_FLAG(state, (reg & bit_mask) != 0);
+  COND_SET_ZERO_FLAG(state, (reg & bit_mask) == 0);
   return 8;
 }
 
@@ -232,7 +221,7 @@ inline int instr_BIT_b_mem_HL (State *state)
   DReg HL = REG_HL(state);
   instr_BIT_b_r<b>(state->memory[HL], state);
   writeMem(HL, state->memory[HL], state); // this is done to use the special write function
-  return 16;
+  return 12;
 }
 
 // SET b, r: set bit b in register r

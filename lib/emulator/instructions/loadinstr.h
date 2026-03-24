@@ -85,7 +85,7 @@ inline int instr_LD_dReg_nn (Reg &upper_reg, Reg &lower_reg, Byte nn_upper, Byte
 inline int instr_LD_SP_nn (State *state, Short nn)
 {
   state->SP = nn;
-  return 12;
+  return 8; // LD SP, nn lasts 12 cycles but + 4 is added in the opcode select switch
 }
 
 // LDHL SP, n: put SP + n into register HL
@@ -96,8 +96,8 @@ inline int instr_LDHL_SP_n (State *state, SByte n)
   SET_REG_HL(HL, state);
   RESET_ZERO_FLAG(state);
   RESET_SUBTRACT_FLAG(state);
-  COND_SET_HALF_CARRY_FLAG(state, (((state->SP & 0x00FF) + n) & 0xFF00) != 0);
-  COND_SET_CARRY_FLAG(state, ((uint32_t(state->SP) + n) >> 16) != 0);
+  COND_SET_HALF_CARRY_FLAG(state, (((state->SP & 0x0F) + (n & 0x0F)) & 0xFFF0) != 0);
+  COND_SET_CARRY_FLAG(state, (((state->SP & 0xFF) + (n & 0xFF)) & 0xFF00) != 0);
   return 12;
 }
 
