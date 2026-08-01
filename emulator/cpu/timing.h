@@ -40,6 +40,9 @@ inline void synchExecution (State &state, InterfaceT &interface) {
   if (state.timing.cycles < state.timing.cycles_next_synch) {
     return;
   }
+  while (interface.emulationStopRequested()) {
+    interface.sleepMillis(10);
+  }
   state.timing.cycles_next_synch += EMU_SYNCH_CYCLES;
   ulong t_now = interface.realTimeMicros();
   ulong delta_t = t_now - state.timing.t_last_synch;

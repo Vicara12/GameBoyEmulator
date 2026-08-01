@@ -24,9 +24,12 @@ class HardwareInterface {
   std::mutex screen_mutex;
   std::array<ScreenPixels*, 3> screen_frames;
   std::unique_ptr<std::vector<Byte>> ram_copy;
+  ulong time_offset = 0;
+  ulong stop_micros = 0;
   float emu_rate = 1.f;
   Byte buttons = 0x00;
   bool end_emulation = false;
+  bool stop_emulation = false;
   bool emulation_ended = false;
   bool new_frame = false;
 
@@ -49,7 +52,7 @@ public:
   inline void sleepMillis (uint t) {impl().sleepMillis(t);}
 
   // IMPLEMENT: This function should return the current real time in microseconds
-  inline ulong realTimeMicros () {return impl().realTimeMicros();}
+  inline ulong realTimeMicros () {return impl().realTimeMicros() - time_offset;}
 
   // IMPLEMENT: Called every 32 times a second, receives as argument the left and right audio buffers, respectively
   inline void playAudio (const AudioPacket &ap) {impl().playAudio(ap);}
@@ -70,6 +73,8 @@ public:
   inline Byte readButtons () {return buttons;}
 
   inline void saveRAM (std::unique_ptr<std::vector<Byte>> ram) {ram_copy = std::move(ram);}
+
+  inline bool emulationStopRequested () {return stop_emulation;}
 
 
   // PLATFORM SIDE FUNCTIONS
@@ -102,6 +107,15 @@ public:
   float emuRate () const {return emu_rate;};
 
   std::unique_ptr<std::vector<Byte>> getRAM () const {return std::move(ram_copy);}
+
+  void pauseEmulation () {stop_emulation = true; stop_micros = realTimeMicros();}
+
+  void resumeEmulation () {
+    if (stop_emulation) {
+      time_offset += realTimeMicros() - stop_micros;
+      stop_emulation = false;
+    }
+  }
 
 protected:
 
