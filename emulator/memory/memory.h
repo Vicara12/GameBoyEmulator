@@ -367,7 +367,7 @@ public:
 
   inline std::unique_ptr<std::vector<Byte>> copyRAM () const {
     if (not hardware.battery) {
-      return nullptr;
+      return std::make_unique<std::vector<Byte>>();
     }
     auto ram_copy = std::make_unique<std::vector<Byte>>(8 * 1024 * hardware.n_ram_banks);
     size_t copy_idx = 0;
