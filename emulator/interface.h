@@ -113,7 +113,7 @@ public:
   // Updated every 0.5s; provides the ratio t_emulation/t_real
   float emuRate () const {return emu_rate;};
 
-  std::unique_ptr<std::vector<Byte>> getRAM () const {return std::move(ram_copy);}
+  std::unique_ptr<std::vector<Byte>> getRAM () {return std::move(ram_copy);}
 
   void pauseEmulation () {stop_emulation = true; stop_micros = realTimeMicros();}
 
