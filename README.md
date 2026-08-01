@@ -34,11 +34,11 @@ If you found this project interesting or built something cool with it, please gi
 - Full graphics support and line-by-line rendering.
 - Full audio support with all 4 channels.
 - Memory bank controllers 1 and 3.
+- Loading saved RAM files.
+- Emulation pause.
 
 ⏳ List of incoming features:
-- Loading saved RAM files.
 - Serial support.
-- Emulation pause.
 - Memory bank controller 5.
 - Game Boy Color support.
 
