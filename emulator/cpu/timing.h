@@ -42,6 +42,9 @@ inline void synchExecution (State &state, InterfaceT &interface) {
   }
   while (interface.emulationStopRequested()) {
     interface.sleepMillis(10);
+    if (interface.forcedRAMCopyTriggered()) {
+      interface.saveRAM(state.memory.copyRAM());
+    }
   }
   state.timing.cycles_next_synch += EMU_SYNCH_CYCLES;
   ulong t_now = interface.realTimeMicros();

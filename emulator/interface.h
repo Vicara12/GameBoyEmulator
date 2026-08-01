@@ -32,6 +32,7 @@ class HardwareInterface {
   bool stop_emulation = false;
   bool emulation_ended = false;
   bool new_frame = false;
+  bool force_ram_copy = false;
 
   inline Derived& impl() {return *static_cast<Derived*>(this);};
 
@@ -76,6 +77,12 @@ public:
 
   inline bool emulationStopRequested () {return stop_emulation;}
 
+  inline bool forcedRAMCopyTriggered () {
+    bool val = force_ram_copy;
+    force_ram_copy = false;
+    return val;
+  }
+
 
   // PLATFORM SIDE FUNCTIONS
 
@@ -115,6 +122,10 @@ public:
       time_offset += realTimeMicros() - stop_micros;
       stop_emulation = false;
     }
+  }
+
+  void forceRAMCopy () {
+    force_ram_copy = true;
   }
 
 protected:

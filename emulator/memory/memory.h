@@ -8,6 +8,8 @@
 #include <array>
 #include <memory>
 #include <optional>
+#include <string>
+#include <stdexcept>
 #include "../types.h"
 #include "../cpu/timingstate.h"
 
@@ -255,6 +257,28 @@ private:
   }
 
 
+  inline void copyBlockVec (
+    std::vector<MemBlock*> &v,
+    size_t n_elms,
+    std::unique_ptr<gb::GameRom> data
+  ) {
+    if (n_elms * MEM_BLOCK_SIZE != data->size()) {
+      throw std::runtime_error(
+        "game RAM wrong size: expected " + std::to_string(MEM_BLOCK_SIZE) +
+        " bytes but got " + std::to_string(data->size())
+      );
+    }
+    size_t idx = 0;
+    v.resize(n_elms);
+    for (size_t i = 0; i < n_elms; i++) {
+      v[i] = new MemBlock;
+      for (auto &val : *v[i]) {
+        val = (*data)[idx++];
+      }
+    }
+  }
+
+
 public:
 
   inline void hookState (Timing *time_state) {timing = time_state;}
@@ -273,7 +297,11 @@ public:
   }
 
 
-  inline void initialize (const std::vector<Byte> &game_rom, const CartHardware &hardware) {
+  inline void initialize (
+    const std::vector<Byte> &game_rom,
+    const CartHardware &hardware,
+    std::unique_ptr<gb::GameRom> game_ram
+  ) {
     if (
       hardware.controller != CtrlType::None and
       hardware.controller != CtrlType::MBC1 and
@@ -287,7 +315,12 @@ public:
     game_boot_rom = std::array<Byte,0x0100>();
     // Need to use pointers because otherwise it creates a temporal object which overflows the stack
     initBlockVec(rom_bank, 2*hardware.n_rom_banks); // A ROM bank is 16kb, but a memory block is 8kb
-    initBlockVec(ram_bank, std::max(hardware.n_ram_banks,1u));
+    if (game_ram) {
+      copyBlockVec(ram_bank, std::max(hardware.n_ram_banks,1u), std::move(game_ram));
+    }
+    else {
+      initBlockVec(ram_bank, std::max(hardware.n_ram_banks,1u));
+    }
 
     // ROM bank 0
     memory[0] = rom_bank[0];
@@ -333,6 +366,9 @@ public:
 
 
   inline std::unique_ptr<std::vector<Byte>> copyRAM () const {
+    if (not hardware.battery) {
+      return nullptr;
+    }
     auto ram_copy = std::make_unique<std::vector<Byte>>(8 * 1024 * hardware.n_ram_banks);
     size_t copy_idx = 0;
     for (size_t bank = 0; bank < hardware.n_ram_banks; bank++) {

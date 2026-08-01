@@ -32,11 +32,16 @@ namespace BuildCfb {
 
 // Run the emulator (boot + run)
 template<class InterfaceT, int bcfg = BuildCfb::None>
-void emulator (InterfaceT &interface, const GameRom &cartridge_data, EmulatorConfig cfg) {
+void emulator (
+  InterfaceT &interface,
+  const GameRom &cartridge_data,
+  EmulatorConfig cfg,
+  std::unique_ptr<GameRom> saved_game = nullptr
+) {
   try {
     // State is created in the heap because large stack variables can crash small systems
     State *state = new State;
-    CartridgeInfo cart_info = loadGame(cartridge_data, *state);
+    CartridgeInfo cart_info = loadGame(cartridge_data, *state, std::move(saved_game));
     printCartridgeInfo(cart_info, interface);
     state->target_speed = cfg.synch_execution ? 1 : std::numeric_limits<float>::max();
     state->screen.pixels = interface.updateScreen();
@@ -47,9 +52,6 @@ void emulator (InterfaceT &interface, const GameRom &cartridge_data, EmulatorCon
       state->memory.replaceBootRom();
     }
     execute<InterfaceT, bcfg & BuildCfb::Debug, bcfg & BuildCfb::FastGraphics>(*state, interface);
-    if (cart_info.hardware.battery) {
-      interface.saveRAM(state->memory.copyRAM());
-    }
     delete state;
     interface.informEmulationEnded();
   } catch (const std::exception &e) {

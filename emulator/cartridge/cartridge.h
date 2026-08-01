@@ -142,7 +142,11 @@ inline CartridgeInfo parseHeader (const std::vector<Byte> &cartridge) {
 }
 
 
-inline CartridgeInfo loadGame (const std::vector<Byte> &cartridge, State &state) {
+inline CartridgeInfo loadGame (
+  const std::vector<Byte> &cartridge,
+  State &state,
+  std::unique_ptr<GameRom> game_ram
+) {
   if (cartridge.size() < 32*1024) {
     throw std::runtime_error("Cartridge is smaller than 32Kb: {} bytes" + std::to_string(cartridge.size()));
   }
@@ -156,7 +160,7 @@ inline CartridgeInfo loadGame (const std::vector<Byte> &cartridge, State &state)
     );
   }
 
-  state.memory.initialize(cartridge, cart_info.hardware);
+  state.memory.initialize(cartridge, cart_info.hardware, std::move(game_ram));
   return cart_info;
 }
 
