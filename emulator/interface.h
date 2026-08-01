@@ -107,7 +107,7 @@ protected:
 
   HardwareInterface() {
     for (auto &sf : screen_frames) {
-      sf = new ScreenPixels;
+      sf = new ScreenPixels{0};
     }
   }
 

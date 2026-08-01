@@ -250,7 +250,7 @@ private:
   inline void initBlockVec (std::vector<MemBlock*> &v, size_t n_elms) {
     v.resize(n_elms);
     for (size_t i = 0; i < n_elms; i++) {
-      v[i] = new MemBlock;
+      v[i] = new MemBlock{0};
     }
   }
 
@@ -300,7 +300,7 @@ public:
 
     for (size_t idx = 4; idx < NUM_MEM_BLOCKS; idx++) {
       if (idx != Addr::ExtRAM/MEM_BLOCK_SIZE) {
-        memory[idx] = new MemBlock;
+        memory[idx] = new MemBlock{0};
       }
     }
 
